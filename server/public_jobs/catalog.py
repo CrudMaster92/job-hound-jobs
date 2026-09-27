@@ -41,7 +41,7 @@ def build_lock(root: Path) -> dict:
         entry = {
             "id": item["id"], "company_id": item["company_id"], "company_name": company["name"],
             "revision": item["revision"], "path": path.relative_to(root).as_posix(),
-            "sha256": digest(path.read_bytes()),
+            "sha256": digest(path.read_bytes().replace(b"\r\n", b"\n")),
             "collection_ids": sorted(collection for collection, ids in memberships.get(item["company_id"], [])
                                      if ids is None or item["id"] in ids),
         }
@@ -75,7 +75,7 @@ def load_monitors(root: Path, lock: dict) -> list[tuple[dict, ScraperRecipe]]:
     selected = []
     for entry in lock["monitors"]:
         path = checked_path(root, entry["path"])
-        if digest(path.read_bytes()) != entry["sha256"]:
+        if digest(path.read_bytes().replace(b"\r\n", b"\n")) != entry["sha256"]:
             raise ValueError(f"Pinned recipe content changed: {entry['id']}")
         document = read_json(path)
         if (document["id"], document["company_id"], document["revision"]) != (entry["id"], entry["company_id"], entry["revision"]):
