@@ -1,0 +1,104 @@
+name: Build public jobs
+
+on:
+  schedule:
+    - cron: '17 5,17 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-jobs-publication
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: python -m pip install -r requirements-dev.txt
+      - name: Check generated runtime and contracts
+        run: |
+          python -m server.public_jobs.export --destination . --check
+          python -m pytest tests -q
+      - name: Restore durable public state
+        run: |
+          state_ref="$(git ls-remote origin refs/heads/feed-state)"
+          mkdir -p .feed-state _site
+          if [ -n "$state_ref" ]; then
+            git fetch --depth 1 origin feed-state
+            git archive FETCH_HEAD | tar -x -C .feed-state
+            python scripts/feed_state.py restore
+          fi
+      - name: Check out reviewed catalog pin
+        run: |
+          pin="$(python -c "import json; print(json.load(open('catalog-lock.json'))['catalog_commit'])")"
+          git init .catalog
+          git -C .catalog remote add origin https://github.com/CrudMaster92/job-hound-presets.git
+          git -C .catalog fetch --depth 1 origin "$pin"
+          git -C .catalog checkout --detach FETCH_HEAD
+      - name: Collect and validate static publication
+        run: >-
+          python -m server.public_jobs build --catalog .catalog --lock catalog-lock.json
+          --state .feed-state/state.json --output _site
+          --generation "$(date -u +%Y%m%dT%H%M%S)-${{ github.run_id }}-${{ github.run_attempt }}"
+      - name: Prepare anonymous durable state
+        run: python scripts/feed_state.py prepare
+      - name: Upload state for publisher
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: public-state
+          path: .publish-state/
+          retention-days: 1
+          include-hidden-files: true
+      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: _site
+          retention-days: 1
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: public-state
+          path: .publish-state
+      - name: Persist generated state with an exact branch lease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          old_ref="$(git ls-remote origin refs/heads/feed-state | cut -f1)"
+          git -C .publish-state init
+          git -C .publish-state checkout --orphan feed-state
+          git -C .publish-state config user.name 'github-actions[bot]'
+          git -C .publish-state config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C .publish-state add .
+          git -C .publish-state commit -m "Public jobs state ${{ github.run_id }}"
+          git -C .publish-state remote add origin "https://github.com/${{ github.repository }}.git"
+          auth="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          git -C .publish-state -c "http.extraheader=AUTHORIZATION: basic $auth" push --force-with-lease="refs/heads/feed-state:$old_ref" origin HEAD:feed-state
+      - name: Deploy validated snapshot
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

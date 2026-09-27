@@ -1,0 +1,4 @@
+# The public collector uses no AI, audio, document or browser dependencies.
+beautifulsoup4==4.15.0
+httpx==0.28.1
+pydantic==2.13.4
