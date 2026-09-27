@@ -22,12 +22,12 @@ def export_runtime(source: Path, destination: Path, *, check: bool = False) -> d
             if not target.is_relative_to(destination.resolve()) or digest(target.read_bytes()) != entry["sha256"]:
                 raise ValueError(f"Generated runtime was edited: {entry['path']}")
             original = source / entry["path"]
-            if source.resolve() != destination.resolve() and digest(original.read_bytes()) != entry["sha256"]:
+            if source.resolve() != destination.resolve() and digest(original.read_bytes().replace(b"\r\n", b"\n")) != entry["sha256"]:
                 raise ValueError(f"Runtime needs re-export: {entry['path']}")
         return manifest
     entries = []
     for relative in EXPORT_PATHS:
-        content = (source / relative).read_bytes()
+        content = (source / relative).read_bytes().replace(b"\r\n", b"\n")
         target = destination / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(content)

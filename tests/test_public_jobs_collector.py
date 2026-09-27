@@ -181,3 +181,15 @@ def test_salary_inference_does_not_turn_million_dollar_sales_quotas_into_pay():
     from server.scrapers.normalize import infer_salary
     assert infer_salary("Track record closing $2M+ annual quotas. Lunch stipend $75.") == (None, None, None)
     assert infer_salary("Managed $5M annual revenue. Salary: USD $120,000 to $150,000 per year.")[:2] == (120000, 150000)
+
+
+def test_runtime_export_is_portable_between_windows_and_linux(tmp_path, monkeypatch):
+    import server.public_jobs.export as exporter
+    source, destination = tmp_path / "source", tmp_path / "export"
+    source.mkdir()
+    (source / "module.py").write_bytes(b"value = 1\r\n")
+    monkeypatch.setattr(exporter, "EXPORT_PATHS", ["module.py"])
+    exporter.export_runtime(source, destination)
+    assert (destination / "module.py").read_bytes() == b"value = 1\n"
+    exporter.export_runtime(source, destination, check=True)
+    exporter.export_runtime(destination, destination, check=True)
