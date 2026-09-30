@@ -72,6 +72,11 @@ def _write(path: Path, value: object) -> str:
     return digest(content)
 
 
+def _generations(root: Path):
+    return sorted((path for path in root.iterdir() if path.is_dir()),
+                  key=lambda path: path.name, reverse=True) if root.exists() else []
+
+
 def validate_publication(api: Path, manifest: dict) -> None:
     FeedManifest.model_validate(manifest)
     total = 0
@@ -98,7 +103,15 @@ def validate_publication(api: Path, manifest: dict) -> None:
         raise ValueError("Manifest job count mismatch")
     if index_bytes > MAX_INDEX_BYTES:
         raise ValueError("Search index exceeds the 60 MB byte budget")
-    if sum(path.stat().st_size for path in api.rglob("*") if path.is_file()) > MAX_PUBLISHED_BYTES:
+    # The restored staging folder temporarily has four generations. Budget
+    # the three that retain_generations will actually upload, without pruning
+    # anything before the new generation has passed validation.
+    snapshots = api / "snapshots"
+    retained = set(_generations(snapshots)[:3])
+    published_bytes = sum(path.stat().st_size for path in api.rglob("*") if path.is_file()
+                          and (not path.is_relative_to(snapshots)
+                               or snapshots / path.relative_to(snapshots).parts[0] in retained))
+    if published_bytes > MAX_PUBLISHED_BYTES:
         raise ValueError("Publication exceeds its 800 MB safety budget")
 
 
@@ -154,8 +167,7 @@ def retain_generations(output: Path, keep: int = 3) -> None:
     root = (output / "api" / "v1" / "snapshots").resolve()
     if not root.exists():
         return
-    generations = sorted((path for path in root.iterdir() if path.is_dir()),
-                         key=lambda path: path.name, reverse=True)
+    generations = _generations(root)
     for path in generations[keep:]:
         resolved = path.resolve()
         if resolved.parent != root or path.is_symlink():

@@ -231,3 +231,20 @@ def test_required_metadata_overflow_preserves_previous_generation(tmp_path, monk
     with pytest.raises(ValueError, match="Required search metadata alone"):
         publisher.publish(state, lock, tmp_path, generation="after", now=NOW)
     assert (tmp_path / "api/v1/manifest.json").read_bytes() == previous
+
+
+def test_publication_budget_counts_retained_generations_without_early_deletion(tmp_path, monkeypatch):
+    from server.public_jobs import publish as publisher
+    state = merge(empty_state(), [clean_result(result([job()]))], 1)
+    lock = {"catalog_commit": "a" * 40, "collections": []}
+    for number in range(1, 4):
+        publisher.publish(state, lock, tmp_path, generation=f"20260926-{number}", now=NOW)
+    api = tmp_path / "api/v1"
+    size = sum(p.stat().st_size for p in api.rglob("*") if p.is_file())
+    monkeypatch.setattr(publisher, "MAX_PUBLISHED_BYTES", size + 500)
+    publisher.publish(state, lock, tmp_path, generation="20260926-4", now=NOW)
+    assert (api / "snapshots/20260926-1").exists()
+    assert sum(p.stat().st_size for p in api.rglob("*") if p.is_file()) > publisher.MAX_PUBLISHED_BYTES
+    publisher.retain_generations(tmp_path)
+    assert not (api / "snapshots/20260926-1").exists()
+    assert sum(p.stat().st_size for p in api.rglob("*") if p.is_file()) <= publisher.MAX_PUBLISHED_BYTES
