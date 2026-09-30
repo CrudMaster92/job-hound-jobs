@@ -29,8 +29,14 @@ unseen; a consumer can retain its own favourite snapshot independently.
 
 Builds verify all schemas, hashes, generations and byte limits before replacing
 the current manifest. Search pages omit descriptions; details are lazy hashed
-pages. Each page is at most seven MB, aggregate search is at most 60 MB, and the
-retained publication has an 800 MB safety ceiling. Three generations remain so
+pages. Search snippets adapt from at most 2,000 characters to the actual UTF-8
+JSON budget as descriptions accumulate. All jobs, metadata and detail references
+remain present; full descriptions are retained unchanged in the detail pages.
+Each page is at most seven MB, aggregate search is at most 60 MB, and the
+retained publication has an 800 MB safety ceiling. If required metadata alone
+cannot fit, publication fails explicitly and preserves the previous generation.
+The workflow summary and three-day diagnostic artifact report description
+coverage, index bytes, chosen snippet length and publication failure details. Three generations remain so
 in-flight readers can finish. All-source failure preserves the published feed.
 
 The dedicated `feed-state` branch persists anonymous state and the last three

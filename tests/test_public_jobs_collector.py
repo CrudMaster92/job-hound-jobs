@@ -193,3 +193,41 @@ def test_runtime_export_is_portable_between_windows_and_linux(tmp_path, monkeypa
     assert (destination / "module.py").read_bytes() == b"value = 1\n"
     exporter.export_runtime(source, destination, check=True)
     exporter.export_runtime(destination, destination, check=True)
+
+def test_publication_adapts_search_text_without_losing_jobs_or_full_descriptions(tmp_path, monkeypatch):
+    from server.public_jobs import publish as publisher
+    monkeypatch.setattr(publisher, "MAX_INDEX_BYTES", 18_000)
+    description = ('"quoted" \\ 雪\n' * 700)
+    records = [job(f"https://acme.example/jobs/{index}", source_id=str(index), description=description)
+               for index in range(8)]
+    state = merge(empty_state(), [clean_result(result(records))], 1)
+    lock = {"catalog_commit": "a" * 40, "collections": []}
+    manifest = publisher.publish(state, lock, tmp_path, generation="enriched", now=NOW)
+    api = tmp_path / "api/v1"
+    index_bytes = sum((api / ref["path"]).stat().st_size for ref in manifest["search_pages"])
+    search = [item for ref in manifest["search_pages"]
+              for item in json.loads((api / ref["path"]).read_text(encoding="utf-8"))["jobs"]]
+    details = [item for ref in manifest["detail_pages"]
+               for item in json.loads((api / ref["path"]).read_text(encoding="utf-8"))["jobs"]]
+    assert index_bytes <= 18_000
+    assert {item["id"] for item in search} == {item["id"] for item in records}
+    assert {item["id"] for item in details} == {item["id"] for item in records}
+    assert all(item["description"] == records[0]["description"] for item in details)
+    assert all(0 < len(item["search_text"]) < 2000 for item in search)
+    report = json.loads((tmp_path / "build-report.json").read_text())
+    assert report["stage"] == "validated"
+    assert report["search_index_bytes"] == index_bytes
+    assert report["jobs_with_descriptions"] == 8
+    assert all(len(item["search_text"]) == report["search_text_max_chars"] for item in search)
+
+
+def test_required_metadata_overflow_preserves_previous_generation(tmp_path, monkeypatch):
+    from server.public_jobs import publish as publisher
+    state = merge(empty_state(), [clean_result(result([job()]))], 1)
+    lock = {"catalog_commit": "a" * 40, "collections": []}
+    publisher.publish(state, lock, tmp_path, generation="before", now=NOW)
+    previous = (tmp_path / "api/v1/manifest.json").read_bytes()
+    monkeypatch.setattr(publisher, "MAX_INDEX_BYTES", 1)
+    with pytest.raises(ValueError, match="Required search metadata alone"):
+        publisher.publish(state, lock, tmp_path, generation="after", now=NOW)
+    assert (tmp_path / "api/v1/manifest.json").read_bytes() == previous

@@ -8,9 +8,9 @@ from pathlib import Path
 from .schema import digest, json_bytes
 
 PUBLIC_MODULES = ("__init__", "schema", "lifecycle", "catalog", "collector", "publish", "__main__", "export")
-SCRAPER_MODULES = ("__init__", "adapters", "ai_contract", "detection", "facade", "http", "models", "normalize", "progress", "runtime")
+SCRAPER_MODULES = ("__init__", "adapters", "ai_contract", "detection", "detail_cache", "detail_extraction", "facade", "http", "models", "normalize", "progress", "runtime")
 EXPORT_PATHS = ["server/__init__.py", *[f"server/public_jobs/{name}.py" for name in PUBLIC_MODULES],
-                *[f"server/scrapers/{name}.py" for name in SCRAPER_MODULES], "tests/test_public_jobs_collector.py"]
+                *[f"server/scrapers/{name}.py" for name in SCRAPER_MODULES], "tests/test_public_jobs_collector.py", "tests/test_public_description_extraction.py", "tests/test_scraper_detail_cache.py"]
 
 
 def export_runtime(source: Path, destination: Path, *, check: bool = False) -> dict:

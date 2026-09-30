@@ -49,10 +49,29 @@ jobs:
           git -C .catalog fetch --depth 1 origin "$pin"
           git -C .catalog checkout --detach FETCH_HEAD
       - name: Collect and validate static publication
-        run: >-
-          python -m server.public_jobs build --catalog .catalog --lock catalog-lock.json
-          --state .feed-state/state.json --output _site
-          --generation "$(date -u +%Y%m%dT%H%M%S)-${{ github.run_id }}-${{ github.run_attempt }}"
+        id: collect
+        run: |
+          python -c "from pathlib import Path; Path('_site/build-report.json').unlink(missing_ok=True)"
+          set -o pipefail
+          python -m server.public_jobs build --catalog .catalog --lock catalog-lock.json \
+            --state .feed-state/state.json --output _site \
+            --generation "$(date -u +%Y%m%dT%H%M%S)-${{ github.run_id }}-${{ github.run_attempt }}" \
+            2>&1 | tee public-build.log
+      - name: Record collection and publication diagnostics
+        if: always()
+        env:
+          COLLECTION_OUTCOME: ${{ steps.collect.outcome }}
+        run: python scripts/build_summary.py
+      - name: Preserve lightweight build diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: public-build-diagnostics
+          path: |
+            diagnostics/
+            public-build.log
+          retention-days: 3
+          if-no-files-found: ignore
       - name: Prepare anonymous durable state
         run: python scripts/feed_state.py prepare
       - name: Upload state for publisher

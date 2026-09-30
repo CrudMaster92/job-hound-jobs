@@ -122,7 +122,7 @@ def collect_monitor(monitor: dict, recipe: ScraperRecipe, *, now: datetime, limi
         if time.monotonic() >= deadline:
             raise CollectionBudgetError("Build time budget exhausted")
         bounded = recipe.model_copy(deep=True)
-        bounded.metadata["detail_fetch_limit"] = min(DETAIL_LIMIT, int(bounded.metadata.get("detail_fetch_limit", DETAIL_LIMIT)))
+        bounded.metadata["detail_fetch_limit"] = DETAIL_LIMIT
         cache = copy.deepcopy(detail_cache or {})
         with PublicClient(limiter, min(deadline, time.monotonic() + SOURCE_SECONDS)) as client:
             result = runner(bounded, client=client, detail_cache=cache)

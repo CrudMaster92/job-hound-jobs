@@ -14,21 +14,55 @@ DETAIL_PAGE_SIZE = 100
 MAX_PUBLISHED_BYTES = 800_000_000
 MAX_SHARD_BYTES = 7_000_000
 MAX_INDEX_BYTES = 60_000_000
+MAX_SEARCH_TEXT_CHARS = 2000
 
 
 def _groups(records: list[dict], count_limit: int):
-    group, size = [], 100
+    group, size = [], 256
     for record in records:
         record_size = len(json_bytes(record)) + 1
-        if record_size + 100 > MAX_SHARD_BYTES:
+        if record_size + 256 > MAX_SHARD_BYTES:
             raise ValueError("Individual job exceeds the shard byte budget")
         if group and (len(group) >= count_limit or size + record_size > MAX_SHARD_BYTES):
             yield group
-            group, size = [], 100
+            group, size = [], 256
         group.append(record)
         size += record_size
     if group:
         yield group
+
+
+
+def _fit_search_text(rows: list[dict], generation: str) -> tuple[int, int]:
+    """Fit optional snippets to the actual UTF-8 JSON budget, never drop jobs.
+
+    Full descriptions remain unchanged in detail pages. Metadata and detail
+    references always survive; only the optional description search prefix is
+    shortened uniformly when the collection grows.
+    """
+    texts = [row["search_text"] for row in rows]
+
+    def measure(limit: int) -> int:
+        for row, text in zip(rows, texts):
+            row["search_text"] = text[:limit]
+        return sum(len(json_bytes({"generation": generation, "jobs": group}))
+                   for group in _groups(rows, PAGE_SIZE))
+
+    size = measure(MAX_SEARCH_TEXT_CHARS)
+    if size <= MAX_INDEX_BYTES:
+        return MAX_SEARCH_TEXT_CHARS, size
+    base_size = measure(0)
+    if base_size > MAX_INDEX_BYTES:
+        raise ValueError(f"Required search metadata alone exceeds the {MAX_INDEX_BYTES}-byte budget "
+                         f"({base_size} bytes for {len(rows)} jobs); no jobs were dropped")
+    low, high = 0, MAX_SEARCH_TEXT_CHARS - 1
+    while low < high:
+        middle = (low + high + 1) // 2
+        if measure(middle) <= MAX_INDEX_BYTES:
+            low = middle
+        else:
+            high = middle - 1
+    return low, measure(low)
 
 
 def _write(path: Path, value: object) -> str:
@@ -84,9 +118,17 @@ def publish(state: dict, lock: dict, output: Path, *, generation: str, now) -> d
         detail_refs.append(ref)
         for job in group:
             row = {key: value for key, value in job.items() if key != "description"}
-            row["search_text"] = job["description"][:2000]
+            row["search_text"] = job["description"][:MAX_SEARCH_TEXT_CHARS]
             row["detail_ref"] = {"path": ref["path"], "sha256": ref["sha256"]}
             search_rows.append(row)
+    snippet_chars, index_bytes = _fit_search_text(search_rows, generation)
+    report = {"generation": generation, "stage": "index_built", "jobs": len(jobs),
+              "jobs_with_descriptions": sum(bool(job["description"].strip()) for job in jobs),
+              "search_index_bytes": index_bytes, "search_index_budget_bytes": MAX_INDEX_BYTES,
+              "search_text_max_chars": snippet_chars,
+              "detail_bytes": sum((api / ref["path"]).stat().st_size for ref in detail_refs)}
+    _write(output / "build-report.json", report)
+    print(json.dumps({"publication": report}), flush=True)
     search_refs = []
     for page, group in enumerate(_groups(search_rows, PAGE_SIZE), 1):
         relative = f"snapshots/{generation}/search-{page:04}.json"
@@ -102,6 +144,8 @@ def publish(state: dict, lock: dict, output: Path, *, generation: str, now) -> d
     pending = api / "manifest.pending.json"
     _write(pending, manifest)
     os.replace(pending, api / "manifest.json")
+    report["stage"] = "validated"
+    _write(output / "build-report.json", report)
     return manifest
 
 

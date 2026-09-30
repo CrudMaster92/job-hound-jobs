@@ -6,6 +6,7 @@ import copy
 import hashlib
 import json
 import re
+import time
 from typing import Any
 
 from bs4 import BeautifulSoup
@@ -15,6 +16,8 @@ import httpx
 from pydantic import ValidationError
 
 from . import adapters
+from . import detail_cache as detail_state
+from . import detail_extraction
 from .progress import report_progress
 from .http import ScraperNetworkError, _validate_target, bounded_request
 from .models import JobRecord, RequestConfig, ScrapeResult, ScraperRecipe, ScraperStrategy, ValidationReport
@@ -104,13 +107,24 @@ def _paged_payloads(recipe: ScraperRecipe, client: httpx.Client | None):
     )
 
 
-def _detail_url(job: JobRecord, recipe: ScraperRecipe) -> str | None:
+def _smartrecruiters_details(recipe: ScraperRecipe) -> bool:
     if recipe.strategy == ScraperStrategy.SMARTRECRUITERS:
+        return True
+    endpoint = urlsplit(recipe.request.url)
+    return (recipe.strategy == ScraperStrategy.GENERIC_JSON
+            and endpoint.hostname == "api.smartrecruiters.com"
+            and re.fullmatch(r"/v1/companies/[^/]+/postings/?", endpoint.path) is not None)
+
+
+def _detail_url(job: JobRecord, recipe: ScraperRecipe) -> str | None:
+    if _smartrecruiters_details(recipe):
         return f"{recipe.request.url.rstrip('/')}/{quote(job.source_id, safe='')}"
     if recipe.strategy == ScraperStrategy.WORKDAY:
         path = urlsplit(job.canonical_url).path
         base = recipe.request.url.removesuffix("/jobs")
         return f"{base}{path}" if path else None
+    if detail_extraction.supports(recipe):
+        return job.canonical_url
     return None
 
 
@@ -118,86 +132,127 @@ def _enrich_details(
     jobs: list[JobRecord], recipe: ScraperRecipe, client: httpx.Client | None,
     detail_cache: dict | None = None,
 ) -> tuple[list[JobRecord], int, list[str]]:
-    """Fetch bounded ATS details only when compact list responses omit descriptions."""
-    if recipe.strategy not in {ScraperStrategy.SMARTRECRUITERS, ScraperStrategy.WORKDAY}:
+    """Enrich fairly across bounded batches; failed fetches never erase good text."""
+    ats_detail = _smartrecruiters_details(recipe) or recipe.strategy == ScraperStrategy.WORKDAY
+    if not ats_detail and not detail_extraction.supports(recipe):
         return jobs, 0, []
     configured = recipe.metadata.get("detail_fetch_limit", DEFAULT_DETAIL_FETCH_LIMIT)
     try:
         limit = min(MAX_DETAIL_FETCH_LIMIT, max(0, int(configured)))
     except (TypeError, ValueError):
         limit = DEFAULT_DETAIL_FETCH_LIMIT
-    detail_predicates = [
-        item for item in (recipe.source_filter.predicates if recipe.source_filter else [])
-        if item.phase == "detail"
-    ]
-    signatures = {}
-    cached = set()
-    if detail_cache is not None:
-        for index, job in enumerate(jobs):
-            signature = hashlib.sha256(json.dumps(job.model_dump(mode="json", exclude={"scraped_at"}), sort_keys=True).encode()).hexdigest()
-            signatures[job.source_id] = signature
-            prior = detail_cache.get(job.source_id)
-            if prior and prior.get("signature") == signature:
-                try:
-                    jobs[index] = JobRecord.model_validate(prior["job"]).model_copy(update={"scraped_at": job.scraped_at})
-                    cached.add(index)
-                except (ValueError, KeyError):
-                    pass
-    missing = list(range(len(jobs))) if detail_predicates else [
-        index for index, job in enumerate(jobs) if not job.description
-    ]
-    missing = [index for index in missing if index not in cached]
-    selected = missing[:limit]
-    warnings: list[str] = []
-    if len(missing) > limit:
-        warnings.append(
-            f"description detail enrichment skipped {len(missing) - limit} jobs "
-            f"after the configured {limit}-posting limit"
-        )
-    fetched = 0
-    failed = 0
+    predicates = [item for item in (recipe.source_filter.predicates if recipe.source_filter else [])
+                  if item.phase == "detail"]
+    cache = detail_cache if detail_cache is not None else {}
+    now = time.time()
     enriched = list(jobs)
-    for position, index in enumerate(selected):
-        report_progress("details", f"Reading role details {position}/{len(selected)}", completed=position, total=len(selected), unit="roles")
-        detail_url = _detail_url(enriched[index], recipe)
-        if not detail_url:
-            failed += 1
-            continue
-        request = RequestConfig(
-            url=detail_url, method="GET", timeout_seconds=10, max_response_bytes=2_000_000,
-        )
-        try:
-            response = bounded_request(request, recipe.allowed_hosts, client)
-            payload = response.json()
-            if not isinstance(payload, dict):
-                raise ValueError("posting detail response was not an object")
-            detail_matches = all if not recipe.source_filter or recipe.source_filter.predicate_match == "all" else any
-            if detail_predicates and not detail_matches(_predicate_matches(payload, item) for item in detail_predicates):
-                enriched[index] = None
-                fetched += 1
+    signatures, candidates, verified, excluded = {}, [], set(), set()
+    waiting = 0
+    for index, listing in enumerate(jobs):
+        current = detail_state.signature(listing, recipe)
+        signatures[index] = current
+        prior = cache.get(listing.source_id)
+        prior = prior if isinstance(prior, dict) else {}
+        enriched[index] = detail_state.restore_missing(listing, prior)
+        same = prior.get("signature") == current
+        proof_fresh = same and now - detail_state.timestamp(prior, "ownership_checked_at") < detail_state.SUCCESS_TTL
+        if predicates and proof_fresh:
+            if prior.get("ownership") == "excluded":
+                excluded.add(index)
                 continue
-            if recipe.strategy == ScraperStrategy.SMARTRECRUITERS:
-                enriched[index] = adapters.enrich_smartrecruiters(enriched[index], payload, recipe)
-            else:
-                enriched[index] = adapters.enrich_workday(enriched[index], payload, recipe)
+            if prior.get("ownership") == "match":
+                verified.add(index)
+        success_fresh = (prior.get("success_signature") == current and enriched[index].description
+                         and now - detail_state.timestamp(prior, "succeeded_at") < detail_state.SUCCESS_TTL)
+        needs_detail = (not listing.description or bool(prior)) and not success_fresh
+        if predicates and index not in verified:
+            needs_detail = True
+        if not needs_detail:
+            continue
+        if same and detail_state.timestamp(prior, "next_attempt_at") > now:
+            waiting += 1
+            continue
+        candidates.append(index)
+    # Unattempted postings go first, then the oldest attempt. A bad first row
+    # cannot consume every later run's quota while other postings never get read.
+    candidates.sort(key=lambda index: (
+        detail_state.timestamp(cache.get(jobs[index].source_id, {}), "attempted_at"),
+        jobs[index].source_id,
+    ))
+    selected = candidates[:limit]
+    warnings = []
+    if len(candidates) > limit:
+        warnings.append(f"description detail enrichment skipped {len(candidates) - limit} jobs "
+                        f"after the configured {limit}-posting limit")
+    if waiting:
+        warnings.append(f"description detail enrichment deferred {waiting} jobs until retry backoff ends")
+    fetched = failed = 0
+    for position, index in enumerate(selected):
+        listing = jobs[index]
+        identifier, current = listing.source_id, signatures[index]
+        prior = cache.get(identifier)
+        prior = prior if isinstance(prior, dict) else {}
+        report_progress("details", f"Reading role details {position}/{len(selected)}",
+                        completed=position, total=len(selected), unit="roles")
+        entry = {**prior, "signature": current, "attempted_at": now}
+        if prior.get("signature") != current:
+            entry.pop("ownership", None)
+            entry.pop("ownership_checked_at", None)
+        try:
+            detail_url = _detail_url(listing, recipe)
+            if not detail_url:
+                raise ValueError("posting has no supported detail URL")
+            response = bounded_request(RequestConfig(
+                url=detail_url, method="GET", timeout_seconds=10, max_response_bytes=2_000_000,
+            ), recipe.allowed_hosts, client)
             fetched += 1
-            if not enriched[index].description:
-                failed += 1
+            payload = response.json() if ats_detail or predicates else None
+            if (ats_detail or predicates) and (not isinstance(payload, dict) or not payload):
+                raise ValueError("posting detail response was not an object with content")
+            if predicates:
+                # Missing ownership evidence is not a confirmed non-match.
+                for item in predicates:
+                    candidate = _at_path(payload, item.path)
+                    if candidate is None:
+                        raise ValueError("source ownership evidence is unavailable")
+                    if item.operator == "html_label_equals_ci":
+                        plain = BeautifulSoup(str(candidate), "html.parser").get_text("\n", strip=True)
+                        if not re.search(rf"(?im)^\s*{re.escape(item.label or '')}\s*:\s*(.+?)\s*$", plain):
+                            raise ValueError("source ownership label is unavailable")
+                match = all if not recipe.source_filter or recipe.source_filter.predicate_match == "all" else any
+                owned = match(_predicate_matches(payload, item) for item in predicates)
+                entry.update(ownership="match" if owned else "excluded", ownership_checked_at=now)
+                if not owned:
+                    excluded.add(index)
+                    cache[identifier] = {**entry, "failures": 0, "next_attempt_at": now + detail_state.SUCCESS_TTL}
+                    continue
+                verified.add(index)
+            # Start from the current listing, not yesterday's restored description:
+            # an empty response must not masquerade as a successful refresh.
+            if _smartrecruiters_details(recipe):
+                fresh = adapters.enrich_smartrecruiters(listing, payload, recipe)
+            elif recipe.strategy == ScraperStrategy.WORKDAY:
+                fresh = adapters.enrich_workday(listing, payload, recipe)
+            else:
+                fresh = detail_extraction.enrich(listing, response.text, recipe)
+            if not fresh.description.strip():
+                raise ValueError("posting detail response has no description")
+            enriched[index] = fresh
+            cache[identifier] = {**entry, "job": fresh.model_dump(mode="json"), "job_listing_url": listing.canonical_url,
+                                 "success_signature": current, "succeeded_at": now,
+                                 "failures": 0, "next_attempt_at": now + detail_state.SUCCESS_TTL}
         except (ScraperNetworkError, ValueError, ValidationError):
             failed += 1
+            cache[identifier] = detail_state.failure(entry, current, now)
     if selected:
-        report_progress("details", f"Read {len(selected)} role details", completed=len(selected), total=len(selected), unit="roles")
+        report_progress("details", f"Read {len(selected)} role details",
+                        completed=len(selected), total=len(selected), unit="roles")
     if failed:
         warnings.append(f"description detail enrichment was incomplete for {failed} jobs")
-    if detail_cache is not None:
-        # Cache attempted unchanged listings, including unavailable details. This
-        # lets a bounded batch move on to later jobs rather than retrying the same
-        # first postings forever. A changed listing is eligible again.
-        for index in selected:
-            if enriched[index] is not None:
-                identifier = jobs[index].source_id
-                detail_cache[identifier] = {"signature": signatures[identifier], "job": enriched[index].model_dump(mode="json")}
-    return [job for job in enriched if job is not None], fetched, warnings
+    unknown = set(range(len(jobs))) - verified - excluded if predicates else set()
+    if unknown:
+        warnings.append(f"source ownership could not be verified for {len(unknown)} jobs")
+    return [job for index, job in enumerate(enriched) if index not in excluded and index not in unknown], fetched, warnings
 
 
 def _at_path(value: Any, path: str) -> Any:
@@ -284,7 +339,7 @@ def run_scraper(
             payload = _filter_listing_payload(_parse_response(response, selected), selected)
             normalized = _apply_source_filter(_adapt(payload, selected), selected)
             jobs.extend(normalized)
-            _notify(progress, "listing", f"Read {pages} pages · {len(jobs)} roles found", min(90, 15 + pages * 10), pages=pages, roles_found=len(jobs))
+            _notify(progress, "listing", f"Read {pages} pages Â· {len(jobs)} roles found", min(90, 15 + pages * 10), pages=pages, roles_found=len(jobs))
     except (ScraperNetworkError, ValidationError) as exc:
         raise ScraperExecutionError(str(exc)) from exc
     unique = {job.source_id: job for job in jobs}
@@ -299,7 +354,9 @@ def run_scraper(
     result = ScrapeResult(
         jobs=enriched, strategy=selected.strategy, pages_fetched=pages,
         warnings=warnings,
-        complete=not bool(selected.metadata.get("partial_listing")),
+        complete=not bool(selected.metadata.get("partial_listing")) and not any(
+            warning.startswith("source ownership could not be verified") for warning in warnings
+        ),
     )
     _notify(progress, "complete", f"Found {len(result.jobs)} jobs", 100)
     return _scheduler_payload(result, selected) if scheduler_call else result
