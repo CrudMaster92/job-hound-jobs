@@ -248,3 +248,34 @@ def test_publication_budget_counts_retained_generations_without_early_deletion(t
     publisher.retain_generations(tmp_path)
     assert not (api / "snapshots/20260926-1").exists()
     assert sum(p.stat().st_size for p in api.rglob("*") if p.is_file()) <= publisher.MAX_PUBLISHED_BYTES
+
+
+def test_budget_exhaustion_during_details_preserves_listing_and_retry_cache():
+    from server.public_jobs.collector import CollectionBudgetError
+    from server.scrapers.runtime import run_scraper
+    from server.scrapers import build_recipe
+    import httpx
+    recipe = build_recipe("Acme", "https://careers.smartrecruiters.com/Acme")
+    cache = {}
+    def handler(request):
+        if request.url.path.endswith("/postings"):
+            return httpx.Response(200, json={"content": [{"id": "1", "name": "Engineer",
+                "ref": "https://api.smartrecruiters.com/v1/companies/Acme/postings/1"}]})
+        raise CollectionBudgetError("Source request/time budget exhausted")
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        value = run_scraper(recipe, client=client, detail_cache=cache)
+    assert len(value.jobs) == 1 and value.complete
+    assert cache["1"]["failures"] == 1
+    assert "description detail enrichment was incomplete for 1 jobs" in value.warnings
+
+
+def test_collector_preserves_withheld_listing_retry_state():
+    import time
+    def runner(recipe, *, client, detail_cache):
+        detail_cache["withheld"] = {"signature": "same", "failures": 1, "next_attempt_at": 100}
+        return ScrapeResult(strategy="generic_json", complete=False, jobs=[],
+                            warnings=["source ownership could not be verified for 1 jobs"])
+    value = collect_monitor(MONITOR, ScraperRecipe.model_validate(RECIPE), now=NOW,
+                            limiter=HostLimiter(), deadline=time.monotonic() + 10, runner=runner)
+    assert not value["jobs"] and value["source"]["status"] == "partial"
+    assert value["detail_cache"]["withheld"]["failures"] == 1

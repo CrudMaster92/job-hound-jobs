@@ -133,6 +133,13 @@ def _enrich_details(
     detail_cache: dict | None = None,
 ) -> tuple[list[JobRecord], int, list[str]]:
     """Enrich fairly across bounded batches; failed fetches never erase good text."""
+    # Prune by the listing, before ownership filtering withholds failed or
+    # non-owned details. Their retry/negative proof must survive to the next run.
+    if detail_cache is not None:
+        listing_ids = {job.source_id for job in jobs}
+        for identifier in list(detail_cache):
+            if identifier not in listing_ids:
+                del detail_cache[identifier]
     ats_detail = _smartrecruiters_details(recipe) or recipe.strategy == ScraperStrategy.WORKDAY
     if not ats_detail and not detail_extraction.supports(recipe):
         return jobs, 0, []

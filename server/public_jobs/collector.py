@@ -12,6 +12,7 @@ import httpx
 from bs4 import BeautifulSoup
 
 from ..scrapers.models import ScraperRecipe
+from ..scrapers.http import ScraperNetworkError
 from ..scrapers.runtime import run_scraper
 from .schema import PublicJob, job_id, timestamp
 
@@ -22,7 +23,7 @@ DETAIL_LIMIT = 20
 MAX_BODY_BYTES = 20_000_000
 
 
-class CollectionBudgetError(RuntimeError):
+class CollectionBudgetError(ScraperNetworkError):
     pass
 
 
@@ -133,11 +134,9 @@ def collect_monitor(monitor: dict, recipe: ScraperRecipe, *, now: datetime, limi
                       job_count=len(jobs), warnings=[str(warning)[:500] for warning in result.warnings[:10]])
         if not result.complete:
             source["warnings"].insert(0, "Bounded source: this listing is incomplete; unseen roles are not confirmed closed.")
-        # Keep only cache records represented by this listing; absence state and
-        # public job history are retained independently by the lifecycle layer.
-        source_ids = {record.source_id for record in result.jobs}
-        return {"source": source, "jobs": jobs,
-                "detail_cache": {key: value for key, value in cache.items() if key in source_ids}}
+        # Runtime prunes against the original listing before ownership filtering.
+        # Retry/proof state for withheld rows must survive without exporting jobs.
+        return {"source": source, "jobs": jobs, "detail_cache": cache}
     except Exception as exc:
         # No response bodies, request URLs, internal paths or environment values
         # enter the public feed diagnostics.

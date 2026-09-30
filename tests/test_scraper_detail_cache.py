@@ -162,3 +162,35 @@ def test_detail_human_url_can_differ_but_original_listing_identity_must_match():
     assert detail_cache.restore_missing(original,prior).description == "Verified prior detail"
     changed_identity = original.model_copy(update={"canonical_url":"https://jobs.smartrecruiters.com/Acme/different"})
     assert not detail_cache.restore_missing(changed_identity,prior).description
+
+
+def test_cache_prunes_by_original_listing_not_filtered_ownership_results(clock):
+    raw = build_recipe("Acme", "https://careers.smartrecruiters.com/Acme").model_dump(mode="json")
+    raw["metadata"]["detail_fetch_limit"] = 1
+    raw["source_filter"] = {"predicates":[{"phase":"detail","path":"brand","operator":"equals_ci","values":["Acme"]}]}
+    recipe = ScraperRecipe.model_validate(raw)
+    cache, calls = {"gone":{"signature":"absent"}}, []
+    def handler(request):
+        identity = request.url.path.rsplit("/",1)[-1]
+        calls.append(identity)
+        if identity == "a":
+            return httpx.Response(503)
+        return httpx.Response(200,json={"brand":"Other company","jobAd":{"sections":{"jobDescription":{"text":"Other role"}}}})
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        first, _, _ = runtime._enrich_details([job("a"),job("b")],recipe,client,cache)
+        assert not first and set(cache) == {"a"}
+        second, _, _ = runtime._enrich_details([job("a"),job("b")],recipe,client,cache)
+        assert not second and set(cache) == {"a","b"} and calls == ["a","b"]
+        assert cache["b"]["ownership"] == "excluded"
+        runtime._enrich_details([job("a"),job("b")],recipe,client,cache)
+        assert calls == ["a","b"]
+        runtime._enrich_details([job("b")],recipe,client,cache)
+        assert set(cache) == {"b"} and calls == ["a","b"]
+
+
+def test_cache_removes_absent_listing_ids_even_without_supported_enrichment():
+    recipe = build_recipe("Acme","https://boards.greenhouse.io/acme")
+    cache = {"a":{"job":"unchanged"},"gone":{"job":"old"}}
+    records, count, warnings = runtime._enrich_details([job("a")],recipe,None,cache)
+    assert [record.source_id for record in records] == ["a"]
+    assert set(cache) == {"a"} and count == 0 and warnings == []
