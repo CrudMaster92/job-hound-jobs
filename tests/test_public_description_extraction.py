@@ -55,3 +55,14 @@ def test_generic_details_use_bounded_runner_cache_and_host_allowlist():
         second = run_scraper(recipe(), client=client, detail_cache=cache)
     assert first.jobs[0].description == second.jobs[0].description == "Build reliable tools."
     assert seen.count("https://example.com/jobs/one") == 1
+
+
+def test_labelled_html_detail_requires_matching_canonical_and_title():
+    page = ('<link rel="canonical" href="https://example.com/jobs/one">'
+            '<h2>Engineer</h2><article><h3>Description &amp; Requirements</h3>'
+            '<div class="article__content">Build tools.</div></article>'
+            '<aside>Share and login</aside>')
+    assert enrich(job(), page, recipe()).description == "Build tools."
+    assert not enrich(job(), page.replace('/jobs/one', '/jobs/two'), recipe()).description
+    assert not enrich(job(), page.replace('Engineer', 'Designer'), recipe()).description
+    assert not enrich(job(), page + '<h2>Engineer</h2>', recipe()).description
