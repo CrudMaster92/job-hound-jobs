@@ -8,6 +8,7 @@ from urllib.parse import parse_qsl, urljoin, urlsplit, urlunsplit
 
 import httpx
 
+from ..external_http import external_trust_env
 from .models import RequestConfig
 
 
@@ -33,7 +34,7 @@ def _validate_target(url: str, allowed_hosts: list[str], *, resolve_dns: bool = 
         except (OSError, ValueError) as exc:
             raise ScraperNetworkError("request target could not be resolved") from exc
     if not addresses or any(not address.is_global for address in addresses):
-        raise ScraperNetworkError("request target must resolve only to public internet addresses")
+        raise ScraperNetworkError("request target must resolve only to public internet addresses; synthetic/private workspace DNS remains blocked even in environment proxy mode")
 
 
 def bounded_request(
@@ -46,7 +47,7 @@ def bounded_request(
     max_redirects: int = 3,
 ) -> httpx.Response:
     owned = client is None
-    active = client or httpx.Client(follow_redirects=False, trust_env=False)
+    active = client or httpx.Client(follow_redirects=False, trust_env=external_trust_env())
     url = config.url
     configured_params = dict(config.params)
     if params is not None:
@@ -54,8 +55,8 @@ def bounded_request(
     try:
         for _ in range(max_redirects + 1):
             # An injected client is the runtime's test/adapter seam (normally a
-            # MockTransport). Real requests always use the owned, proxy-free
-            # client and receive DNS/IP confinement as well as host confinement.
+            # MockTransport). Real requests retain DNS/IP confinement and host confinement,
+            # including when the configured workspace proxy is enabled.
             _validate_target(url, allowed_hosts, resolve_dns=owned or bool(getattr(active, "_jobhound_resolve_dns", False)))
             request_url = url
             request_params = None

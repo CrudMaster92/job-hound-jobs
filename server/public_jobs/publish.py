@@ -13,7 +13,7 @@ PAGE_SIZE = 250
 DETAIL_PAGE_SIZE = 100
 MAX_PUBLISHED_BYTES = 800_000_000
 MAX_SHARD_BYTES = 7_000_000
-MAX_INDEX_BYTES = 60_000_000
+MAX_INDEX_BYTES = 200_000_000
 MAX_SEARCH_TEXT_CHARS = 2000
 
 
@@ -102,7 +102,7 @@ def validate_publication(api: Path, manifest: dict) -> None:
     if total != manifest["total_jobs"]:
         raise ValueError("Manifest job count mismatch")
     if index_bytes > MAX_INDEX_BYTES:
-        raise ValueError("Search index exceeds the 60 MB byte budget")
+        raise ValueError(f"Search index exceeds the {MAX_INDEX_BYTES}-byte budget")
     # The restored staging folder temporarily has four generations. Budget
     # the three that retain_generations will actually upload, without pruning
     # anything before the new generation has passed validation.
@@ -130,7 +130,10 @@ def publish(state: dict, lock: dict, output: Path, *, generation: str, now) -> d
         ref = {"path": relative, "sha256": _write(api / relative, {"generation": generation, "jobs": group}), "count": len(group)}
         detail_refs.append(ref)
         for job in group:
-            row = {key: value for key, value in job.items() if key != "description"}
+            # Optional absent values carry no search information. Consumers
+            # already accept missing optional fields; details retain the full
+            # schema, including nulls. Keep scarce index bytes for actual data.
+            row = {key: value for key, value in job.items() if key != "description" and value is not None}
             row["search_text"] = job["description"][:MAX_SEARCH_TEXT_CHARS]
             row["detail_ref"] = {"path": ref["path"], "sha256": ref["sha256"]}
             search_rows.append(row)

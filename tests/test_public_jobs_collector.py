@@ -106,6 +106,9 @@ def test_publisher_validates_before_pointer_switch_and_has_hashed_lazy_details(t
     validate_publication(api, manifest)
     search = json.loads((api / manifest["search_pages"][0]["path"]).read_text())
     assert "description" not in search["jobs"][0]
+    assert "salary_min" not in search["jobs"][0]
+    details = json.loads((api / manifest["detail_pages"][0]["path"]).read_text())
+    assert details["jobs"][0]["salary_min"] is None
     assert search["jobs"][0]["detail_ref"]["sha256"] == manifest["detail_pages"][0]["sha256"]
     before = (api / "manifest.json").read_bytes()
     state["jobs"][job()["id"]]["job"]["private_data"] = "must never leak"
@@ -219,6 +222,16 @@ def test_publication_adapts_search_text_without_losing_jobs_or_full_descriptions
     assert report["search_index_bytes"] == index_bytes
     assert report["jobs_with_descriptions"] == 8
     assert all(len(item["search_text"]) == report["search_text_max_chars"] for item in search)
+
+
+def test_search_metadata_above_previous_60_mb_budget_is_accepted():
+    from server.public_jobs import publish as publisher
+    rows = [{"title": "x" * 1000, "search_text": ""} for _ in range(70_000)]
+    snippet_chars, size = publisher._fit_search_text(rows, "large-board")
+    assert publisher.MAX_INDEX_BYTES == 200_000_000
+    assert 60_000_000 < size <= publisher.MAX_INDEX_BYTES
+    assert snippet_chars == publisher.MAX_SEARCH_TEXT_CHARS
+    assert len(rows) == 70_000
 
 
 def test_required_metadata_overflow_preserves_previous_generation(tmp_path, monkeypatch):
