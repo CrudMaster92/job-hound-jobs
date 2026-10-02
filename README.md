@@ -36,10 +36,10 @@ Each page is at most seven MB, aggregate search is at most 200 MB, and the
 retained publication has an 800 MB safety ceiling. If required metadata alone
 cannot fit, publication fails explicitly and preserves the previous generation.
 The workflow summary and three-day diagnostic artifact report description
-coverage, index bytes, chosen snippet length and publication failure details. Three generations remain so
+coverage, index bytes, chosen snippet length and publication failure details. Two generations remain so
 in-flight readers can finish. All-source failure preserves the published feed.
 
-The dedicated `feed-state` branch persists anonymous state and the last three
+The dedicated `feed-state` branch persists anonymous state and the last two
 published generations; disposable Actions caches are never the source of truth.
 It contains only a single root commit to avoid permanently accumulating scraped
 content in Git history. Only that generated branch is replaced, with an exact

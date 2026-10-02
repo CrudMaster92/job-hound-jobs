@@ -12,6 +12,7 @@ from .schema import FeedManifest, PublicJob, digest, json_bytes, timestamp
 PAGE_SIZE = 250
 DETAIL_PAGE_SIZE = 100
 MAX_PUBLISHED_BYTES = 800_000_000
+RETAINED_GENERATIONS = 2
 MAX_SHARD_BYTES = 7_000_000
 MAX_INDEX_BYTES = 200_000_000
 MAX_SEARCH_TEXT_CHARS = 2000
@@ -103,11 +104,11 @@ def validate_publication(api: Path, manifest: dict) -> None:
         raise ValueError("Manifest job count mismatch")
     if index_bytes > MAX_INDEX_BYTES:
         raise ValueError(f"Search index exceeds the {MAX_INDEX_BYTES}-byte budget")
-    # The restored staging folder temporarily has four generations. Budget
-    # the three that retain_generations will actually upload, without pruning
+    # Staging also contains older generations. Budget only the current and
+    # previous generation that will be uploaded, without pruning
     # anything before the new generation has passed validation.
     snapshots = api / "snapshots"
-    retained = set(_generations(snapshots)[:3])
+    retained = set(_generations(snapshots)[:RETAINED_GENERATIONS])
     published_bytes = sum(path.stat().st_size for path in api.rglob("*") if path.is_file()
                           and (not path.is_relative_to(snapshots)
                                or snapshots / path.relative_to(snapshots).parts[0] in retained))
@@ -165,7 +166,7 @@ def publish(state: dict, lock: dict, output: Path, *, generation: str, now) -> d
     return manifest
 
 
-def retain_generations(output: Path, keep: int = 3) -> None:
+def retain_generations(output: Path, keep: int = RETAINED_GENERATIONS) -> None:
     """Keep current and prior snapshots so in-flight clients can finish."""
     root = (output / "api" / "v1" / "snapshots").resolve()
     if not root.exists():

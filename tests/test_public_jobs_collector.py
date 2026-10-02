@@ -260,6 +260,9 @@ def test_publication_budget_counts_retained_generations_without_early_deletion(t
     assert sum(p.stat().st_size for p in api.rglob("*") if p.is_file()) > publisher.MAX_PUBLISHED_BYTES
     publisher.retain_generations(tmp_path)
     assert not (api / "snapshots/20260926-1").exists()
+    assert not (api / "snapshots/20260926-2").exists()
+    assert (api / "snapshots/20260926-3").exists()
+    assert (api / "snapshots/20260926-4").exists()
     assert sum(p.stat().st_size for p in api.rglob("*") if p.is_file()) <= publisher.MAX_PUBLISHED_BYTES
 
 

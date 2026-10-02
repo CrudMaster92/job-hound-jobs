@@ -12,7 +12,7 @@ update. Never activate unknown/browser/unverified sources automatically.
 No user documents, search preferences, personal database, credentials, browser
 cookies or local application state belong here. `feed-state` is exclusively a
 generated publication branch. The publisher replaces that branch with a root
-commit using an exact lease, preserving only three public snapshot generations
+commit using an exact lease, preserving only two public snapshot generations
 and the current public lifecycle state. Never place authored files there.
 
 Run `python -m server.public_jobs.export --destination . --check` and
