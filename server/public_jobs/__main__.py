@@ -48,6 +48,9 @@ def main() -> None:
         if len(monitors) != len(wanted):
             parser.error("--monitor must name eligible pinned IDs")
     now = datetime.now(timezone.utc)
+    # Oldest actual attempt first. Sources never reached before the shared
+    # deadline retain their place for the next run rather than starving.
+    monitors.sort(key=lambda item: (state.get("sources", {}).get(item[0]["id"], {}).get("last_attempt_at") or "", item[0]["id"]))
     generation = args.generation or now.strftime("%Y%m%dT%H%M%S")
     results = collect(monitors, now=now, minutes=args.minutes,
                       source_caches=state.get("source_caches", {}),
@@ -55,6 +58,7 @@ def main() -> None:
     if not any(result["source"]["status"] in {"complete", "partial"} for result in results):
         raise SystemExit("No sources succeeded; previous state and published generation preserved")
     updated = apply_results(state, results, generation=generation, now=now)
+    updated["catalog_lock"] = lock
     for source in lock["excluded"]:
         updated["sources"][source["id"]] = {key: source[key] for key in ("id", "company_id", "company_name", "revision")}
         updated["sources"][source["id"]].update(status="excluded", complete=False, job_count=0,

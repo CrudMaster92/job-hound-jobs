@@ -75,12 +75,26 @@ def load_monitors(root: Path, lock: dict) -> list[tuple[dict, ScraperRecipe]]:
     selected = []
     for entry in lock["monitors"]:
         path = checked_path(root, entry["path"])
-        if digest(path.read_bytes().replace(b"\r\n", b"\n")) != entry["sha256"]:
+        if lock.get("version") == 2:
+            commit = entry["catalog_commit"]
+            if not re.fullmatch(r"[a-f0-9]{40}", commit):
+                raise ValueError("Invalid individual source pin")
+            # All reachable history is fetched by the collector. No candidate
+            # code is checked out or executed; only exact normal JSON blobs.
+            from ..contributions.cli import read_blob
+            document = read_blob(root, commit, entry["path"])
+            raw = subprocess.check_output(["git", "-C", str(root), "show", f"{commit}:{entry['path']}"])
+        else:
+            raw = path.read_bytes()
+            document = read_json(path)
+        if digest(raw.replace(b"\r\n", b"\n")) != entry["sha256"]:
             raise ValueError(f"Pinned recipe content changed: {entry['id']}")
-        document = read_json(path)
         if (document["id"], document["company_id"], document["revision"]) != (entry["id"], entry["company_id"], entry["revision"]):
             raise ValueError("Pinned monitor identity changed")
-        if document["verification"]["status"] != "verified":
+        if entry.get("validation"):
+            from ..contributions.validation import effective_verification
+            effective_verification(document, entry["validation"])
+        elif document["verification"]["status"] != "verified":
             raise ValueError("Only reviewed verified monitors can be collected")
         recipe = ScraperRecipe.model_validate(document["recipe"])
         if recipe.strategy.value == "playwright":
