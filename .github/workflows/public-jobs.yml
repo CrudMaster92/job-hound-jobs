@@ -52,7 +52,7 @@ jobs:
             git -C .catalog fetch --depth 1 origin review-receipts
             git -C .catalog archive FETCH_HEAD receipts | tar -x -C .receipts
           fi
-      - name: Admit exact trusted revisions merged by Jo
+      - name: Admit exact trusted revisions merged by the maintainer
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |

@@ -18,7 +18,7 @@ description coverage; collection completeness describes listing coverage.
 The checked-in catalog lock bootstraps the existing reviewed sources. Each
 scheduled build reads current catalog main and advances individual source pins
 only when a trusted live-validation receipt matches the exact recipe hash,
-runtime revision and PR head, and Jo (`CrudMaster92`) merged that PR into main.
+runtime revision and PR head, and the maintainer (`CrudMaster92`) merged that PR into main.
 That merge is the public-collection approval; no second lock PR is needed.
 The resulting lock persists with anonymous feed state. A failed, absent or
 unverified update retains that source's previous working pin. Verified
