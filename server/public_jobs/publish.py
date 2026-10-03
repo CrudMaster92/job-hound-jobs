@@ -34,7 +34,7 @@ def _groups(records: list[dict], count_limit: int):
 
 
 
-def _fit_search_text(rows: list[dict], generation: str) -> tuple[int, int]:
+def _fit_search_text(rows: list[dict], generation: str, *, byte_budget: int | None = None) -> tuple[int, int]:
     """Fit optional snippets to the actual UTF-8 JSON budget, never drop jobs.
 
     Full descriptions remain unchanged in detail pages. Metadata and detail
@@ -42,6 +42,7 @@ def _fit_search_text(rows: list[dict], generation: str) -> tuple[int, int]:
     shortened uniformly when the collection grows.
     """
     texts = [row["search_text"] for row in rows]
+    budget = MAX_INDEX_BYTES if byte_budget is None else min(MAX_INDEX_BYTES, byte_budget)
 
     def measure(limit: int) -> int:
         for row, text in zip(rows, texts):
@@ -50,16 +51,16 @@ def _fit_search_text(rows: list[dict], generation: str) -> tuple[int, int]:
                    for group in _groups(rows, PAGE_SIZE))
 
     size = measure(MAX_SEARCH_TEXT_CHARS)
-    if size <= MAX_INDEX_BYTES:
+    if size <= budget:
         return MAX_SEARCH_TEXT_CHARS, size
     base_size = measure(0)
-    if base_size > MAX_INDEX_BYTES:
-        raise ValueError(f"Required search metadata alone exceeds the {MAX_INDEX_BYTES}-byte budget "
+    if base_size > budget:
+        raise ValueError(f"Required search metadata alone exceeds the {budget}-byte budget "
                          f"({base_size} bytes for {len(rows)} jobs); no jobs were dropped")
     low, high = 0, MAX_SEARCH_TEXT_CHARS - 1
     while low < high:
         middle = (low + high + 1) // 2
-        if measure(middle) <= MAX_INDEX_BYTES:
+        if measure(middle) <= budget:
             low = middle
         else:
             high = middle - 1
@@ -138,10 +139,33 @@ def publish(state: dict, lock: dict, output: Path, *, generation: str, now) -> d
             row["search_text"] = job["description"][:MAX_SEARCH_TEXT_CHARS]
             row["detail_ref"] = {"path": ref["path"], "sha256": ref["sha256"]}
             search_rows.append(row)
-    snippet_chars, index_bytes = _fit_search_text(search_rows, generation)
+    def make_manifest(search_refs):
+        return FeedManifest(
+            generation=generation, generated_at=timestamp(now), catalog_commit=lock["catalog_commit"],
+            total_jobs=len(jobs), active_jobs=sum(job["status"] == "active" for job in jobs),
+            collections=lock["collections"], sources=list(state["sources"].values()),
+            search_pages=search_refs, detail_pages=detail_refs,
+        ).model_dump(mode="json")
+
+    # Keep the previous immutable snapshot, full descriptions and every job.
+    # Fit only this generation's optional snippets to the remaining hosting
+    # capacity. Reserve both new manifest copies before replacing either one.
+    anticipated_refs = [{"path": f"snapshots/{generation}/search-{page:04}.json",
+                         "sha256": "0" * 64, "count": PAGE_SIZE}
+                        for page, _ in enumerate(_groups(search_rows, PAGE_SIZE), 1)]
+    manifest_reserve = 2 * len(json_bytes(make_manifest(anticipated_refs)))
+    snapshots = api / "snapshots"
+    retained = set(_generations(snapshots)[:RETAINED_GENERATIONS])
+    existing_bytes = sum(path.stat().st_size for path in api.rglob("*") if path.is_file()
+                         and path.name not in {"manifest.pending.json"}
+                         and path != api / "manifest.json"
+                         and (not path.is_relative_to(snapshots)
+                              or snapshots / path.relative_to(snapshots).parts[0] in retained))
+    index_budget = min(MAX_INDEX_BYTES, MAX_PUBLISHED_BYTES - existing_bytes - manifest_reserve)
+    snippet_chars, index_bytes = _fit_search_text(search_rows, generation, byte_budget=index_budget)
     report = {"generation": generation, "stage": "index_built", "jobs": len(jobs),
               "jobs_with_descriptions": sum(bool(job["description"].strip()) for job in jobs),
-              "search_index_bytes": index_bytes, "search_index_budget_bytes": MAX_INDEX_BYTES,
+              "search_index_bytes": index_bytes, "search_index_budget_bytes": index_budget,
               "search_text_max_chars": snippet_chars,
               "detail_bytes": sum((api / ref["path"]).stat().st_size for ref in detail_refs)}
     _write(output / "build-report.json", report)
@@ -150,12 +174,7 @@ def publish(state: dict, lock: dict, output: Path, *, generation: str, now) -> d
     for page, group in enumerate(_groups(search_rows, PAGE_SIZE), 1):
         relative = f"snapshots/{generation}/search-{page:04}.json"
         search_refs.append({"path": relative, "sha256": _write(api / relative, {"generation": generation, "jobs": group}), "count": len(group)})
-    manifest = FeedManifest(
-        generation=generation, generated_at=timestamp(now), catalog_commit=lock["catalog_commit"],
-        total_jobs=len(jobs), active_jobs=sum(job["status"] == "active" for job in jobs),
-        collections=lock["collections"], sources=list(state["sources"].values()),
-        search_pages=search_refs, detail_pages=detail_refs,
-    ).model_dump(mode="json")
+    manifest = make_manifest(search_refs)
     validate_publication(api, manifest)
     _write(generation_path / "manifest.json", manifest)
     pending = api / "manifest.pending.json"

@@ -30,7 +30,8 @@ unseen; a consumer can retain its own favourite snapshot independently.
 Builds verify all schemas, hashes, generations and byte limits before replacing
 the current manifest. Search pages omit descriptions; details are lazy hashed
 pages. Search snippets adapt from at most 2,000 characters to the actual UTF-8
-JSON budget as descriptions accumulate. All jobs, metadata and detail references
+JSON budget and remaining hosting capacity after retaining full details and the
+prior immutable snapshot. All jobs, metadata and detail references
 remain present; full descriptions are retained unchanged in the detail pages.
 Each page is at most seven MB, aggregate search is at most 200 MB, and the
 retained publication has an 800 MB safety ceiling. If required metadata alone
