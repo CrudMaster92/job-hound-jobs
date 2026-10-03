@@ -15,10 +15,28 @@ description coverage; collection completeness describes listing coverage.
 
 ## Reliability and lifecycle
 
-The catalog lock pins one reviewed catalog commit and exact monitor revisions
-and hashes. Verified non-browser sources are eligible, including explicitly
-partial sources. Excluded and failing sources remain visible in source health.
-New revisions require an explicit lock update and deployment.
+The checked-in catalog lock bootstraps the existing reviewed sources. Each
+scheduled build reads current catalog main and advances individual source pins
+only when a trusted live-validation receipt matches the exact recipe hash,
+runtime revision and PR head, and Jo (`CrudMaster92`) merged that PR into main.
+That merge is the public-collection approval; no second lock PR is needed.
+The resulting lock persists with anonymous feed state. A failed, absent or
+unverified update retains that source's previous working pin. Verified
+non-browser sources are eligible, including explicitly explained partial
+sources. Excluded and failing sources remain visible in source health.
+
+Before enabling this admission lane, restrict `job-hound-presets` main and
+`review-receipts` to human review and the trusted receipt publisher. Agent
+contributors must not write that receipt branch or merge their own proposals.
+The validator executes base-branch runtime only; candidate JSON is data.
+The catalog and collector runtime manifests must have the same revision.
+Any runtime update needs coordinated reviewed exports to both repositories.
+Untrusted or stale receipts fail closed.
+
+Collection keeps at most four active source tasks and stops submitting work
+at its global deadline. The next build tries least-recently attempted sources
+first. Sources not attempted are not recorded as failed. Per-source limits,
+partial-result closure rules and atomic publication still apply.
 
 Jobs have stable company-and-source-URL IDs across overlapping monitors and
 collections. Two complete successful absences close a job. Failed and partial

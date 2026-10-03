@@ -4,7 +4,7 @@ from __future__ import annotations
 import threading
 import time
 import copy
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
 from datetime import datetime
 from urllib.parse import urlsplit
 
@@ -118,6 +118,8 @@ def normalize_job(record, monitor: dict, now: datetime) -> dict:
 def collect_monitor(monitor: dict, recipe: ScraperRecipe, *, now: datetime, limiter: HostLimiter,
                     deadline: float, runner=run_scraper, detail_cache: dict | None = None) -> dict:
     source = {key: monitor[key] for key in ("id", "company_id", "company_name", "revision")}
+    if monitor.get("artifact_hash"):
+        source["artifact_hash"] = monitor["artifact_hash"]
     source.update(status="failed", complete=False, job_count=0, warnings=[])
     try:
         if time.monotonic() >= deadline:
@@ -150,12 +152,26 @@ def collect(monitors: list[tuple[dict, ScraperRecipe]], *, now: datetime, minute
     deadline = time.monotonic() + minutes * 60
     results = []
     with ThreadPoolExecutor(max_workers=WORKERS) as pool:
-        futures = [pool.submit(collect_monitor, monitor, recipe, now=now, limiter=limiter,
-                               deadline=deadline, runner=runner, detail_cache=(source_caches or {}).get(monitor["id"]))
-                   for monitor, recipe in monitors]
-        for future in as_completed(futures):
-            result = future.result()
-            results.append(result)
-            if progress:
-                progress(result["source"])
+        remaining = iter(monitors)
+        active = set()
+        exhausted = False
+        while active or not exhausted:
+            while not exhausted and len(active) < WORKERS and time.monotonic() < deadline:
+                item = next(remaining, None)
+                if item is None:
+                    exhausted = True
+                    break
+                monitor, recipe = item
+                active.add(pool.submit(collect_monitor, monitor, recipe, now=now, limiter=limiter,
+                                       deadline=deadline, runner=runner, detail_cache=(source_caches or {}).get(monitor["id"])))
+            if time.monotonic() >= deadline:
+                exhausted = True
+            if not active:
+                break
+            finished, active = wait(active, return_when=FIRST_COMPLETED)
+            for future in finished:
+                result = future.result()
+                results.append(result)
+                if progress:
+                    progress(result["source"])
     return sorted(results, key=lambda result: result["source"]["id"])

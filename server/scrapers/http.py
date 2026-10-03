@@ -8,7 +8,7 @@ from urllib.parse import parse_qsl, urljoin, urlsplit, urlunsplit
 
 import httpx
 
-from ..external_http import external_trust_env
+from ..external_http import external_trust_env, external_client_kwargs
 from .models import RequestConfig
 
 
@@ -47,7 +47,7 @@ def bounded_request(
     max_redirects: int = 3,
 ) -> httpx.Response:
     owned = client is None
-    active = client or httpx.Client(follow_redirects=False, trust_env=external_trust_env())
+    active = client or httpx.Client(follow_redirects=False, **external_client_kwargs())
     url = config.url
     configured_params = dict(config.params)
     if params is not None:

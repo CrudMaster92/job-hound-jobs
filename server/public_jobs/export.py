@@ -7,16 +7,24 @@ from pathlib import Path
 
 from .schema import digest, json_bytes
 
-PUBLIC_MODULES = ("__init__", "schema", "lifecycle", "catalog", "collector", "publish", "__main__", "export")
+PUBLIC_MODULES = ("__init__", "schema", "lifecycle", "catalog", "collector", "publish", "__main__", "export", "admission")
 SCRAPER_MODULES = ("__init__", "adapters", "ai_contract", "detection", "detail_cache", "detail_extraction", "facade", "http", "models", "normalize", "progress", "runtime")
-EXPORT_PATHS = ["server/__init__.py", "server/external_http.py", *[f"server/public_jobs/{name}.py" for name in PUBLIC_MODULES],
-                *[f"server/scrapers/{name}.py" for name in SCRAPER_MODULES], "tests/test_public_jobs_collector.py", "tests/test_public_description_extraction.py", "tests/test_scraper_detail_cache.py"]
+CONTRIBUTION_MODULES = ("__init__", "contracts", "github", "validation", "cli", "admission")
+SCHEMA_NAMES = ("jobhound-company-v1", "jobhound-monitor-v1", "jobhound-collection-v1", "jobhound-preset-v1")
+EXPORT_PATHS = [*[f"server/contributions/{name}.py" for name in CONTRIBUTION_MODULES],
+                *[f"server/contributions/schemas/{name}.schema.json" for name in SCHEMA_NAMES],
+                "server/__init__.py", "server/external_http.py", *[f"server/public_jobs/{name}.py" for name in PUBLIC_MODULES],
+                *[f"server/scrapers/{name}.py" for name in SCRAPER_MODULES], "tests/test_public_jobs_collector.py", "tests/test_public_description_extraction.py", "tests/test_scraper_detail_cache.py", "tests/test_contribution_admission.py"]
 
 
 def export_runtime(source: Path, destination: Path, *, check: bool = False) -> dict:
     manifest_path = destination / "runtime-manifest.json"
     if check:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if manifest.get("format") != "jobhound-public-runtime" or manifest.get("version") != 1 or {entry["path"] for entry in manifest["files"]} != set(EXPORT_PATHS):
+            raise ValueError("Generated runtime manifest differs from the canonical export allowlist")
+        if digest(json_bytes(manifest["files"])) != manifest["runtime_revision"]:
+            raise ValueError("Generated runtime revision hash is invalid")
         for entry in manifest["files"]:
             target = (destination / entry["path"]).resolve()
             if not target.is_relative_to(destination.resolve()) or digest(target.read_bytes()) != entry["sha256"]:

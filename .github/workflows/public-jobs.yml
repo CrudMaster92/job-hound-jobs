@@ -41,19 +41,30 @@ jobs:
             git archive FETCH_HEAD | tar -x -C .feed-state
             python scripts/feed_state.py restore
           fi
-      - name: Check out reviewed catalog pin
+      - name: Read current catalog and trusted receipts as data
         run: |
-          pin="$(python -c "import json; print(json.load(open('catalog-lock.json'))['catalog_commit'])")"
           git init .catalog
           git -C .catalog remote add origin https://github.com/CrudMaster92/job-hound-presets.git
-          git -C .catalog fetch --depth 1 origin "$pin"
+          git -C .catalog fetch origin main
           git -C .catalog checkout --detach FETCH_HEAD
+          mkdir .receipts
+          if git -C .catalog ls-remote --exit-code origin refs/heads/review-receipts; then
+            git -C .catalog fetch --depth 1 origin review-receipts
+            git -C .catalog archive FETCH_HEAD receipts | tar -x -C .receipts
+          fi
+      - name: Admit exact trusted revisions merged by Jo
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python -m server.public_jobs.admission --catalog .catalog --receipts .receipts \
+            --runtime-manifest runtime-manifest.json --bootstrap-lock catalog-lock.json \
+            --state .feed-state/state.json --output effective-lock.json
       - name: Collect and validate static publication
         id: collect
         run: |
           python -c "from pathlib import Path; Path('_site/build-report.json').unlink(missing_ok=True)"
           set -o pipefail
-          python -m server.public_jobs build --catalog .catalog --lock catalog-lock.json \
+          python -m server.public_jobs build --catalog .catalog --lock effective-lock.json \
             --state .feed-state/state.json --output _site \
             --generation "$(date -u +%Y%m%dT%H%M%S)-${{ github.run_id }}-${{ github.run_attempt }}" \
             2>&1 | tee public-build.log
