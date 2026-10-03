@@ -44,7 +44,10 @@ published generations; disposable Actions caches are never the source of truth.
 It contains only a single root commit to avoid permanently accumulating scraped
 content in Git history. Only that generated branch is replaced, with an exact
 lease. `main` remains ordinary reviewed source history. State is gzip-compressed
-and is not served from Pages. Pages deployments are atomic.
+in independently compressed 32 MiB parts so growing lifecycle state cannot
+exceed Git's individual-file limit. Ordered parts are verified by size and
+SHA-256 before restoration; existing single-file state remains readable.
+State is not served from Pages. Pages deployments are atomic.
 
 ## Human and agent interfaces
 
