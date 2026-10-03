@@ -1,0 +1,2551 @@
+{
+  "catalog_commit": "6888898b190440a81c5ba86d75bd80788b601ac8",
+  "sources": [
+    {
+      "id": "accendra-health",
+      "company_id": "accendra-health",
+      "path": "companies/accendra-health/monitors/accendra-health.json",
+      "recipe_sha256": "668559384eaff5e1f1fc94910a9ad7aef898f82166d1fc107f2295f137c56083",
+      "strategy": "workday",
+      "request_url": "https://accendra.wd504.myworkdayjobs.com/wday/cxs/accendra/AccendraCareers/jobs",
+      "careers_url": "https://accendra.wd504.myworkdayjobs.com/AccendraCareers",
+      "checked_at": "2026-10-03T22:12:43.421753+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment was incomplete for 1 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "accendra.wd504.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Delivery Technician - NON CMV",
+          "url": "https://accendra.wd504.myworkdayjobs.com/AccendraCareers/job/NC-WILMINGTON/Delivery-Technician---NON-CMV_REQ_26_70749"
+        },
+        {
+          "title": "Sales Executive II",
+          "url": "https://accendra.wd504.myworkdayjobs.com/AccendraCareers/job/TX-LUBBOCK/Sales-Executive-II_REQ_26_70566-1"
+        }
+      ]
+    },
+    {
+      "id": "advance-auto-parts",
+      "company_id": "advance-auto-parts",
+      "path": "companies/advance-auto-parts/monitors/advance-auto-parts.json",
+      "recipe_sha256": "3ff35a2f1dd89d9284388e0ed09272c4f704a3c179385ceda19e4e370a27f63f",
+      "strategy": "workday",
+      "request_url": "https://advanceauto.wd5.myworkdayjobs.com/wday/cxs/advanceauto/AdvanceExternalCareers/jobs",
+      "careers_url": "https://advanceauto.wd5.myworkdayjobs.com/AdvanceExternalCareers",
+      "checked_at": "2026-10-03T22:12:43.422755+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "advanceauto.wd5.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Commercial Specialist",
+          "url": "https://advanceauto.wd5.myworkdayjobs.com/AdvanceExternalCareers/job/10702-Kingston-Pike-Knoxville-TN-37934/Commercial-Specialist_R-0612734"
+        },
+        {
+          "title": "Retail Parts Pro",
+          "url": "https://advanceauto.wd5.myworkdayjobs.com/AdvanceExternalCareers/job/3514-Western-Ave-Knoxville-TN-37921/Retail-Parts-Pro_R-0612728-1"
+        }
+      ]
+    },
+    {
+      "id": "agco",
+      "company_id": "agco",
+      "path": "companies/agco/monitors/agco.json",
+      "recipe_sha256": "af85f2480c3c6217a983da6185e0f4bce624e5acea6689ab99bfd72224e7c53c",
+      "strategy": "generic_html",
+      "request_url": "https://careers.agcocorp.com/search/",
+      "careers_url": "https://careers.agcocorp.com/search",
+      "checked_at": "2026-10-03T22:12:43.424248+00:00",
+      "job_count": 0,
+      "pages": 1,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [],
+      "outcome": "blocked-empty",
+      "verdict": "blocked",
+      "source_filter": null,
+      "sample_jobs": []
+    },
+    {
+      "id": "amazon-games",
+      "company_id": "amazon",
+      "path": "companies/amazon/monitors/amazon-games.json",
+      "recipe_sha256": "134715b4e5dae476bf2d8b8f536926103428678b04d1dea6cd13e13774b96752",
+      "strategy": "generic_json",
+      "request_url": "https://www.amazon.jobs/en/search.json",
+      "careers_url": "https://www.amazon.jobs/en/search?base_query=Amazon%20Games",
+      "checked_at": "2026-10-03T22:01:14.126771+00:00",
+      "job_count": 3,
+      "pages": 1,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": {
+        "title_contains_any": [
+          "Amazon Games",
+          "gaming",
+          "game designer",
+          "game developer",
+          "gameplay"
+        ]
+      },
+      "sample_jobs": [
+        {
+          "title": "Finance Manager, Amazon Games",
+          "url": "https://www.amazon.jobs/en/jobs/10544645/finance-manager-amazon-games"
+        },
+        {
+          "title": "Senior Creator Marketing Manager , Amazon Games - Luna",
+          "url": "https://www.amazon.jobs/en/jobs/10541157/senior-creator-marketing-manager-amazon-games-luna"
+        }
+      ]
+    },
+    {
+      "id": "ameren",
+      "company_id": "ameren",
+      "path": "companies/ameren/monitors/ameren.json",
+      "recipe_sha256": "28d1eccd41003002f043d7d531865707b7f90b312544bfa686f58cb1cd227d30",
+      "strategy": "workday",
+      "request_url": "https://ameren.wd1.myworkdayjobs.com/wday/cxs/ameren/External/jobs",
+      "careers_url": "https://ameren.wd1.myworkdayjobs.com/External",
+      "checked_at": "2026-10-03T22:12:43.425486+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "ameren.wd1.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Contractor Services Supervisor",
+          "url": "https://ameren.wd1.myworkdayjobs.com/External/job/Warrenton-MO/Contractor-Services-Supervisor_034182"
+        },
+        {
+          "title": "Manager, Maintenance",
+          "url": "https://ameren.wd1.myworkdayjobs.com/External/job/West-Alton-MO/Manager--Maintenance_033748"
+        }
+      ]
+    },
+    {
+      "id": "american-family",
+      "company_id": "american-family",
+      "path": "companies/american-family/monitors/american-family.json",
+      "recipe_sha256": "bfdb2eae723955c5c649eaaa55d0c4f9f132fe078de0d7e4477ec58ce1ffa214",
+      "strategy": "workday",
+      "request_url": "https://amfam.wd1.myworkdayjobs.com/wday/cxs/amfam/Careers/jobs",
+      "careers_url": "https://amfam.wd1.myworkdayjobs.com/Careers",
+      "checked_at": "2026-10-03T22:09:38.191204+00:00",
+      "job_count": 17,
+      "pages": 18,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "amfam.wd1.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": {
+        "title_contains_any": [
+          "Engineer",
+          "Developer",
+          "Attorney",
+          "Actuary",
+          "Adjuster",
+          "Analyst",
+          "Intern",
+          "Claims",
+          "Scientist",
+          "Litigation",
+          "Telephony",
+          "Systems",
+          "Compliance",
+          "Sponsorship",
+          "Marketing",
+          "Risk"
+        ],
+        "predicate_match": "all"
+      },
+      "sample_jobs": [
+        {
+          "title": "Cybersecurity Engineer - PAM (Hybrid)",
+          "url": "https://amfam.wd1.myworkdayjobs.com/Careers/job/AF-MA-Boston-Office-Congress-St/Cybersecurity-Engineer---PAM--Hybrid-_R39412-1"
+        },
+        {
+          "title": "Senior Security & Risk Analyst (Hybrid)",
+          "url": "https://amfam.wd1.myworkdayjobs.com/Careers/job/MA-Boston/Senior-Security---Risk-Analyst--Hybrid-_R39447"
+        }
+      ]
+    },
+    {
+      "id": "american-financial-group",
+      "company_id": "american-financial-group",
+      "path": "companies/american-financial-group/monitors/american-financial-group.json",
+      "recipe_sha256": "75d92d70fa95b8a132647d52a54617d212e05c005bba79462891715b22e04fb6",
+      "strategy": "workday",
+      "request_url": "https://gaig.wd1.myworkdayjobs.com/wday/cxs/gaig/GAIG_External/jobs",
+      "careers_url": "https://gaig.wd1.myworkdayjobs.com/GAIG_External",
+      "checked_at": "2026-10-03T22:12:44.406482+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "gaig.wd1.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Insurance Operations Specialist",
+          "url": "https://gaig.wd1.myworkdayjobs.com/GAIG_External/job/Los-Angeles-CA-USA/Insurance-Operations-Specialist_R9543-1"
+        },
+        {
+          "title": "Senior Insurance Operations Associate",
+          "url": "https://gaig.wd1.myworkdayjobs.com/GAIG_External/job/Los-Angeles-CA-USA/Senior-Insurance-Operations-Associate_R9442-1"
+        }
+      ]
+    },
+    {
+      "id": "anthropic",
+      "company_id": "anthropic",
+      "path": "companies/anthropic/monitors/anthropic.json",
+      "recipe_sha256": "e15993464e353b563b7338a00737721a55dd2cad537193898fc146cdcec2cca0",
+      "strategy": "greenhouse",
+      "request_url": "https://boards-api.greenhouse.io/v1/boards/anthropic/jobs",
+      "careers_url": "https://job-boards.greenhouse.io/anthropic",
+      "checked_at": "2026-10-03T22:01:13.603796+00:00",
+      "job_count": 639,
+      "pages": 1,
+      "complete": true,
+      "warnings": [],
+      "partial_listing": false,
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Account Executive, AI Native",
+          "url": "https://job-boards.greenhouse.io/anthropic/jobs/4461450008"
+        },
+        {
+          "title": "Account Executive - DNB",
+          "url": "https://job-boards.greenhouse.io/anthropic/jobs/5391376008"
+        }
+      ]
+    },
+    {
+      "id": "arista-networks",
+      "company_id": "arista-networks",
+      "path": "companies/arista-networks/monitors/arista-networks.json",
+      "recipe_sha256": "2dea8db2dc04ad77120694b9de4f68fac3d6f7a5eabdd325ecd78100b4fd0945",
+      "strategy": "generic_html",
+      "request_url": "https://careers.smartrecruiters.com/AristaNetworks",
+      "careers_url": "https://careers.smartrecruiters.com/AristaNetworks",
+      "checked_at": "2026-10-03T22:13:00.370093+00:00",
+      "job_count": 49,
+      "pages": 1,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 44 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "jobs.smartrecruiters.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Hardware Escalation Engineer",
+          "url": "https://jobs.smartrecruiters.com/AristaNetworks/744000153274429-hardware-escalation-engineer-"
+        },
+        {
+          "title": "Senior Commodity Manager - Rack Integration",
+          "url": "https://jobs.smartrecruiters.com/AristaNetworks/744000152541657-senior-commodity-manager-rack-integration"
+        }
+      ]
+    },
+    {
+      "id": "autoliv",
+      "company_id": "autoliv",
+      "path": "companies/autoliv/monitors/autoliv.json",
+      "recipe_sha256": "378c01a9859e1ed45fc38d2a3f83ab6daab03817c1362e464450d9c19c781275",
+      "strategy": "generic_html",
+      "request_url": "https://career.autoliv.com/jobs",
+      "careers_url": "https://career.autoliv.com/jobs",
+      "checked_at": "2026-10-03T22:13:00.548510+00:00",
+      "job_count": 20,
+      "pages": 1,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 15 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "career.autoliv.com",
+        "careerfrance.autoliv.com",
+        "careerhungary.autoliv.com",
+        "careermexico.autoliv.com",
+        "careerromania.autoliv.com",
+        "careerunitedstates.autoliv.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Material Associate",
+          "url": "https://careerunitedstates.autoliv.com/jobs/8475253-material-associate"
+        },
+        {
+          "title": "AOA Production Associate",
+          "url": "https://careerunitedstates.autoliv.com/jobs/8475067-aoa-production-associate"
+        }
+      ]
+    },
+    {
+      "id": "avery-dennison",
+      "company_id": "avery-dennison",
+      "path": "companies/avery-dennison/monitors/avery-dennison.json",
+      "recipe_sha256": "0b6cc83ce5af0af96428a34ff9c8c802f93716b4404e79479f5334080aa2bdf6",
+      "strategy": "generic_html",
+      "request_url": "https://careers.smartrecruiters.com/AveryDennison",
+      "careers_url": "https://careers.smartrecruiters.com/AveryDennison",
+      "checked_at": "2026-10-03T22:13:00.918622+00:00",
+      "job_count": 7,
+      "pages": 1,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 2 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "jobs.smartrecruiters.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Mechatronics Assembly Technician (All-round)",
+          "url": "https://jobs.smartrecruiters.com/AveryDennison/744000151633429-mechatronics-assembly-technician-all-round-"
+        },
+        {
+          "title": "Technisch Operator",
+          "url": "https://jobs.smartrecruiters.com/AveryDennison/744000144767579-technisch-operator"
+        }
+      ]
+    },
+    {
+      "id": "biogen",
+      "company_id": "biogen",
+      "path": "companies/biogen/monitors/biogen.json",
+      "recipe_sha256": "fd51c013897855664061a9346a62872ce010507750158115cded871d6400ef38",
+      "strategy": "workday",
+      "request_url": "https://biibhr.wd3.myworkdayjobs.com/wday/cxs/biibhr/external/jobs",
+      "careers_url": "https://biibhr.wd3.myworkdayjobs.com/external",
+      "checked_at": "2026-10-03T22:13:01.638144+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "biibhr.wd3.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Co-op, Field Medical Excellence",
+          "url": "https://biibhr.wd3.myworkdayjobs.com/external/job/Cambridge-MA/Co-op--Field-Medical-Excellence_REQ24296"
+        },
+        {
+          "title": "Co-op, Market Research & Insights",
+          "url": "https://biibhr.wd3.myworkdayjobs.com/external/job/Research-Triangle-Park-NC/Co-op--Market-Research---Insights_REQ24270-1"
+        }
+      ]
+    },
+    {
+      "id": "bjs-wholesale",
+      "company_id": "bjs-wholesale",
+      "path": "companies/bjs-wholesale/monitors/bjs-wholesale.json",
+      "recipe_sha256": "11295ed61e91d2f014819825b5125be1b1ee5189842e59b52a855ac156044157",
+      "strategy": "workday",
+      "request_url": "https://bjswholesaleclub.wd1.myworkdayjobs.com/wday/cxs/bjswholesaleclub/BJsCareers/jobs",
+      "careers_url": "https://bjswholesaleclub.wd1.myworkdayjobs.com/BJsCareers",
+      "checked_at": "2026-10-03T22:09:38.192208+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "bjswholesaleclub.wd1.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Full Time Online Order Fulfillment Supervisor",
+          "url": "https://bjswholesaleclub.wd1.myworkdayjobs.com/BJsCareers/job/Chesterfield-MI-0385/Full-Time-Online-Order-Fulfillment-Supervisor_R258382"
+        },
+        {
+          "title": "Full Time Experienced Butcher",
+          "url": "https://bjswholesaleclub.wd1.myworkdayjobs.com/BJsCareers/job/Avon-OH-0115/Full-Time-Experienced-Butcher_R258289"
+        }
+      ]
+    },
+    {
+      "id": "campbell-s",
+      "company_id": "campbell-s",
+      "path": "companies/campbell-s/monitors/campbell-s.json",
+      "recipe_sha256": "8e3040bf476b1b8da8429aff751ecd8f8c67e0ff734d72cd8555a3720581575f",
+      "strategy": "workday",
+      "request_url": "https://campbellsoup.wd5.myworkdayjobs.com/wday/cxs/campbellsoup/ExternalCareers_GlobalSite/jobs",
+      "careers_url": "https://campbellsoup.wd5.myworkdayjobs.com/ExternalCareers_GlobalSite",
+      "checked_at": "2026-10-03T22:13:01.801079+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "campbellsoup.wd5.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Design Manager, Everyday Pantry Essentials",
+          "url": "https://campbellsoup.wd5.myworkdayjobs.com/ExternalCareers_GlobalSite/job/USA---NJ---Camden/Design-Manager--Everyday-Pantry-Essentials_Req-68516-1"
+        },
+        {
+          "title": "Distribution Order Picker",
+          "url": "https://campbellsoup.wd5.myworkdayjobs.com/ExternalCareers_GlobalSite/job/USA---IL---Wooddale---DSD/Distribution-Order-Picker_Req-68529"
+        }
+      ]
+    },
+    {
+      "id": "celanese",
+      "company_id": "celanese",
+      "path": "companies/celanese/monitors/celanese.json",
+      "recipe_sha256": "64379abf9966b392178db641d21368b39293687e101a0ccca8b32f2152801ef3",
+      "strategy": "generic_html",
+      "request_url": "https://celanese.applytojob.com/apply",
+      "careers_url": "https://celanese.applytojob.com/apply",
+      "checked_at": "2026-10-03T22:13:03.476090+00:00",
+      "job_count": 56,
+      "pages": 6,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 51 jobs after the configured 5-posting limit"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "celanese.applytojob.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Account Representative, Account Development - Nutrinova",
+          "url": "https://celanese.applytojob.com/apply/NPkTOQuHWU/Account-Representative-Account-Development-Nutrinova"
+        },
+        {
+          "title": "Advanced Chemist",
+          "url": "https://celanese.applytojob.com/apply/aCpfjIXaUt/Advanced-Chemist"
+        }
+      ]
+    },
+    {
+      "id": "centerpoint-energy",
+      "company_id": "centerpoint-energy",
+      "path": "companies/centerpoint-energy/monitors/centerpoint-energy.json",
+      "recipe_sha256": "36e9205ba3facc9159efb1b6726bf6359c837cb6bd4d61ced67bba4678dbcb98",
+      "strategy": "generic_html",
+      "request_url": "https://careers.centerpointenergy.com/search/",
+      "careers_url": "https://careers.centerpointenergy.com/search",
+      "checked_at": "2026-10-03T22:13:04.258003+00:00",
+      "job_count": 16,
+      "pages": 6,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 11 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "careers.centerpointenergy.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Senior Regulatory & Rates Analyst",
+          "url": "https://careers.centerpointenergy.com/job/Houston-Senior-Regulatory-&-Rates-Analyst-TX-77002/1423982400"
+        },
+        {
+          "title": "Measurement Gas Coordinator",
+          "url": "https://careers.centerpointenergy.com/job/Indianapolis-Measurement-Gas-Coordinator-IN-46268/1436509600"
+        }
+      ]
+    },
+    {
+      "id": "cintas",
+      "company_id": "cintas",
+      "path": "companies/cintas/monitors/cintas.json",
+      "recipe_sha256": "7083dba05bc30a9b7ff90df4907ae744f12e6424e8d8b00d4f4bb83479d7e7d6",
+      "strategy": "generic_html",
+      "request_url": "https://careers.cintas.com/search/",
+      "careers_url": "https://careers.cintas.com/search",
+      "checked_at": "2026-10-03T22:13:07.830771+00:00",
+      "job_count": 25,
+      "pages": 6,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 20 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "careers.cintas.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Service Sales Representative - First Aid and Safety",
+          "url": "https://careers.cintas.com/job/Huntsville-Service-Sales-Representative-First-Aid-and-Safety-AL-35808/1396735500"
+        },
+        {
+          "title": "Sales Representative - Facility Services",
+          "url": "https://careers.cintas.com/job/Traverse-City-Sales-Representative-Facility-Services-MI-49686/1406893200"
+        }
+      ]
+    },
+    {
+      "id": "cms-energy",
+      "company_id": "cms-energy",
+      "path": "companies/cms-energy/monitors/cms-energy.json",
+      "recipe_sha256": "47d23dfdae1e3a21cf095004d2de9d379eda463e2e954f63ca04b99adfd94eec",
+      "strategy": "generic_html",
+      "request_url": "https://careers.consumersenergy.com/search/",
+      "careers_url": "https://careers.consumersenergy.com/search",
+      "checked_at": "2026-10-03T22:13:11.587074+00:00",
+      "job_count": 25,
+      "pages": 6,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 20 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "careers.consumersenergy.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Intern/Co-Op-IT & Security",
+          "url": "https://careers.consumersenergy.com/job/JACKSON-InternCo-Op-IT-&-Security-MI/1426728800"
+        },
+        {
+          "title": "Intern/Co-Op-Technician",
+          "url": "https://careers.consumersenergy.com/job/MULTIPLE-LOCATIONS-InternCo-Op-Technician-MI/1426368500"
+        }
+      ]
+    },
+    {
+      "id": "commercial-metals",
+      "company_id": "commercial-metals",
+      "path": "companies/commercial-metals/monitors/commercial-metals.json",
+      "recipe_sha256": "a4d4b25c2f4ecf01da572c856a793483d19cc49f54c443f4ac4327002967d49c",
+      "strategy": "generic_html",
+      "request_url": "https://jobs.cmc.com/search/",
+      "careers_url": "https://jobs.cmc.com/search",
+      "checked_at": "2026-10-03T22:13:13.726017+00:00",
+      "job_count": 25,
+      "pages": 6,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 20 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "jobs.cmc.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Production Operator",
+          "url": "https://jobs.cmc.com/job/Fort-Myers-Production-Operator-FL-33916/1389797600"
+        },
+        {
+          "title": "Truck Driver",
+          "url": "https://jobs.cmc.com/job/Lexington-Truck-Driver-SC-29072/1426868700"
+        }
+      ]
+    },
+    {
+      "id": "concentrix",
+      "company_id": "concentrix",
+      "path": "companies/concentrix/monitors/concentrix.json",
+      "recipe_sha256": "416aed328fcae2c80b5fc25168c4fb6f3450ffa7975ef5a67c1252924532d43a",
+      "strategy": "workday",
+      "request_url": "https://cnx.wd1.myworkdayjobs.com/wday/cxs/cnx/external_global/jobs",
+      "careers_url": "https://cnx.wd1.myworkdayjobs.com/external_global",
+      "checked_at": "2026-10-03T22:13:15.345758+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "cnx.wd1.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Sr. Specialist, Sales Development - Bilingual",
+          "url": "https://cnx.wd1.myworkdayjobs.com/external_global/job/COL-Bogota---Cra-15-77-50/Sr-Specialist--Sales-Development---Bilingual_R1764945"
+        },
+        {
+          "title": "Capacity Manager",
+          "url": "https://cnx.wd1.myworkdayjobs.com/external_global/job/NLD-Rotterdam---Weena-505/Capacity-Manager_R1764692"
+        }
+      ]
+    },
+    {
+      "id": "constellation-brands",
+      "company_id": "constellation-brands",
+      "path": "companies/constellation-brands/monitors/constellation-brands.json",
+      "recipe_sha256": "19cbd89acd22cbac747aa48f530428b4b5408fc7342295891b0dc5fe1b6f1e3f",
+      "strategy": "workday",
+      "request_url": "https://cbrands.wd5.myworkdayjobs.com/wday/cxs/cbrands/CBI_External_Careers/jobs",
+      "careers_url": "https://cbrands.wd5.myworkdayjobs.com/CBI_External_Careers",
+      "checked_at": "2026-10-03T22:13:17.349777+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "cbrands.wd5.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Tecnológo, Tratamientos de Agua",
+          "url": "https://cbrands.wd5.myworkdayjobs.com/CBI_External_Careers/job/Veracruz-Veracruz-Mexico/Tecnolgo--Tratamientos-de-Agua_R-41370"
+        },
+        {
+          "title": "Associate Brand Manager",
+          "url": "https://cbrands.wd5.myworkdayjobs.com/CBI_External_Careers/job/Chicago-Illinois/Associate-Brand-Manager_R-40787-1"
+        }
+      ]
+    },
+    {
+      "id": "continental-resources",
+      "company_id": "continental-resources",
+      "path": "companies/continental-resources/monitors/continental-resources.json",
+      "recipe_sha256": "8af661b060727a985bd3cd3f678f0dbc5200dc623724a6c9ba2570ae09eb2518",
+      "strategy": "workday",
+      "request_url": "https://clr.wd5.myworkdayjobs.com/wday/cxs/clr/CLR_Careers/jobs",
+      "careers_url": "https://clr.wd5.myworkdayjobs.com/CLR_Careers",
+      "checked_at": "2026-10-03T22:13:19.885357+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "clr.wd5.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Staff Reservoir Engineer - Reservoir Solutions",
+          "url": "https://clr.wd5.myworkdayjobs.com/CLR_Careers/job/Oklahoma-City-OK/Staff-Reservoir-Engineer--Reservoir-Solutions-_R02386-1"
+        },
+        {
+          "title": "Staff Land Tech",
+          "url": "https://clr.wd5.myworkdayjobs.com/CLR_Careers/job/Oklahoma-City-OK/Staff-Land-Tech_R02674"
+        }
+      ]
+    },
+    {
+      "id": "core-main",
+      "company_id": "core-main",
+      "path": "companies/core-main/monitors/core-main.json",
+      "recipe_sha256": "c7c40ccee8124002ff669aa584db257d56a895d22549b40217629f0d406bc0b8",
+      "strategy": "generic_html",
+      "request_url": "https://jobs.coreandmain.com/p/coreandmain/jobs",
+      "careers_url": "https://jobs.coreandmain.com/p/coreandmain/jobs",
+      "checked_at": "2026-10-03T22:13:21.035994+00:00",
+      "job_count": 1,
+      "pages": 2,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "jobs.coreandmain.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Accountant II",
+          "url": "https://jobs.coreandmain.com/job/Core-Main-Accountant-II---AogIsvAr52JG-L8oYlZCQ"
+        }
+      ]
+    },
+    {
+      "id": "cursor",
+      "company_id": "cursor",
+      "path": "companies/cursor/monitors/cursor.json",
+      "recipe_sha256": "ba626a0b8cdacb8db53eaa3012b37f38ac9f71f86557eeb659022935a56f0fb0",
+      "strategy": "ashby",
+      "request_url": "https://api.ashbyhq.com/posting-api/job-board/cursor",
+      "careers_url": "https://cursor.com/careers",
+      "checked_at": "2026-10-03T22:01:58.549547+00:00",
+      "job_count": 132,
+      "pages": 1,
+      "complete": true,
+      "warnings": [],
+      "partial_listing": false,
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Software Engineer, Growth",
+          "url": "https://jobs.ashbyhq.com/cursor/0ec39ed7-a5dc-4551-bb26-b7f4f9fb4a74"
+        },
+        {
+          "title": "Software Engineer, Infrastructure",
+          "url": "https://jobs.ashbyhq.com/cursor/6d576a09-f30d-4e5e-bb58-5d7ef56cb511"
+        }
+      ]
+    },
+    {
+      "id": "cygames",
+      "company_id": "cygames",
+      "path": "companies/cygames/monitors/cygames.json",
+      "recipe_sha256": "06b6fa138f5cf9caa1c2a89abd71070fbd0315b889869b204b994710ba938afa",
+      "strategy": "generic_html",
+      "request_url": "https://hrmos.co/pages/cygames/jobs",
+      "careers_url": "https://hrmos.co/pages/cygames/jobs",
+      "checked_at": "2026-10-03T22:01:15.439709+00:00",
+      "job_count": 100,
+      "pages": 1,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "ゲームプランナー／ゲーム／東京",
+          "url": "https://hrmos.co/pages/cygames/jobs/0000001"
+        },
+        {
+          "title": "ディレクター／ゲーム／東京",
+          "url": "https://hrmos.co/pages/cygames/jobs/0000002"
+        }
+      ]
+    },
+    {
+      "id": "dana",
+      "company_id": "dana",
+      "path": "companies/dana/monitors/dana.json",
+      "recipe_sha256": "6ec9289b77f01fe5fc846d08d420ec60ec0a65b269e90c89451049f81c25640c",
+      "strategy": "generic_html",
+      "request_url": "https://jobs.dana.com/search/",
+      "careers_url": "https://jobs.dana.com/search",
+      "checked_at": "2026-10-03T22:13:22.099501+00:00",
+      "job_count": 25,
+      "pages": 6,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 20 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "jobs.dana.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "AUDITOR DE CALIDAD",
+          "url": "https://jobs.dana.com/job/Escobedo-AUDITOR-DE-CALIDAD-NLE-66052/1097861200"
+        },
+        {
+          "title": "AUDITOR DE CALIDAD",
+          "url": "https://jobs.dana.com/job/Escobedo-AUDITOR-DE-CALIDAD-NLE-66052/1173106700"
+        }
+      ]
+    },
+    {
+      "id": "delek-us-holdings",
+      "company_id": "delek-us-holdings",
+      "path": "companies/delek-us-holdings/monitors/delek-us-holdings.json",
+      "recipe_sha256": "206543f18bc9a543b7cd522b51400e89f0f88ced59e65ed1feb7f8b1d6b7c9f7",
+      "strategy": "generic_html",
+      "request_url": "https://jobs.delekus.com/search/",
+      "careers_url": "https://jobs.delekus.com/search",
+      "checked_at": "2026-10-03T22:13:26.147017+00:00",
+      "job_count": 25,
+      "pages": 6,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 20 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "jobs.delekus.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "I & E Tech - Hobbs, NM",
+          "url": "https://jobs.delekus.com/job/Libby-Plant-%28Libb%29-I-&-E-Tech-Hobbs%2C-NM-NM-88240/1364665000"
+        },
+        {
+          "title": "I & E Tech",
+          "url": "https://jobs.delekus.com/job/Big-Spring-I-&-E-Tech-TX-79720/1416601300"
+        }
+      ]
+    },
+    {
+      "id": "dover",
+      "company_id": "dover",
+      "path": "companies/dover/monitors/dover.json",
+      "recipe_sha256": "35bd2b7efa95e5b45b0398ed2d98ceab3a2ebeae2bc3c556de63df854f2c096d",
+      "strategy": "workday",
+      "request_url": "https://dover.wd103.myworkdayjobs.com/wday/cxs/dover/Dover/jobs",
+      "careers_url": "https://dover.wd103.myworkdayjobs.com/Dover",
+      "checked_at": "2026-10-03T22:13:29.776037+00:00",
+      "job_count": 14,
+      "pages": 15,
+      "complete": false,
+      "warnings": [
+        "removed 6 duplicate source IDs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "dover.wd103.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Materials Planner",
+          "url": "https://dover.wd103.myworkdayjobs.com/Dover/job/Ciudad-de-Mexico-Ciudad-de-Mexico-Mexico/Materials-Planner_JR101932"
+        },
+        {
+          "title": "Manufacturing Supervisor",
+          "url": "https://dover.wd103.myworkdayjobs.com/Dover/job/Elon-North-Carolina-USA/Manufacturing-Supervisor_JR101433"
+        }
+      ]
+    },
+    {
+      "id": "dupont",
+      "company_id": "dupont",
+      "path": "companies/dupont/monitors/dupont.json",
+      "recipe_sha256": "559db8f508737e3bca0144b77ee103ee07aed6dbbd979841fac3e3264c7ecb15",
+      "strategy": "workday",
+      "request_url": "https://dupont.wd5.myworkdayjobs.com/wday/cxs/dupont/Jobs/jobs",
+      "careers_url": "https://dupont.wd5.myworkdayjobs.com/Jobs",
+      "checked_at": "2026-10-03T22:13:33.858634+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "dupont.wd5.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Technical Service Technician",
+          "url": "https://dupont.wd5.myworkdayjobs.com/Jobs/job/Valley-View-Ohio/Technical-Service-Technician_250031W"
+        },
+        {
+          "title": "Facilities Services Specialist (m/f/d)",
+          "url": "https://dupont.wd5.myworkdayjobs.com/Jobs/job/Meyrin-Geneva/Facilities-Services-Specialist--m-f-d-_249945W-1"
+        }
+      ]
+    },
+    {
+      "id": "eastman-chemical",
+      "company_id": "eastman-chemical",
+      "path": "companies/eastman-chemical/monitors/eastman-chemical.json",
+      "recipe_sha256": "fb7824196c2b4ff76afc90e41899046f9aca96d7a972bd2c93290ac591c37d66",
+      "strategy": "generic_html",
+      "request_url": "https://jobs.eastman.com/search/",
+      "careers_url": "https://jobs.eastman.com/search",
+      "checked_at": "2026-10-03T22:13:34.320060+00:00",
+      "job_count": 25,
+      "pages": 6,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 20 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "jobs.eastman.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Business Development Manager",
+          "url": "https://jobs.eastman.com/job/Nationwide-Business-Development-Manager-CA/1404424100"
+        },
+        {
+          "title": "Operations and Apprentice",
+          "url": "https://jobs.eastman.com/job/Fieldale-Operations-and-Apprentice-VA-24089/1423044000"
+        }
+      ]
+    },
+    {
+      "id": "eqt",
+      "company_id": "eqt",
+      "path": "companies/eqt/monitors/eqt.json",
+      "recipe_sha256": "bf91692d3a31735386abd5214345fda99eb69f82e36fc30059089a1e246c648b",
+      "strategy": "generic_json",
+      "request_url": "https://boards-api.greenhouse.io/v1/boards/eqtcorporation/jobs",
+      "careers_url": "https://job-boards.greenhouse.io/eqtcorporation",
+      "checked_at": "2026-10-03T22:13:37.032190+00:00",
+      "job_count": 49,
+      "pages": 1,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "job-boards.greenhouse.io"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Application Analyst I/II/Sr/Lead",
+          "url": "https://job-boards.greenhouse.io/eqtcorporation/jobs/5390629008"
+        },
+        {
+          "title": "Automation Engineering Technician I/II/III/Sr",
+          "url": "https://job-boards.greenhouse.io/eqtcorporation/jobs/5217116008"
+        }
+      ]
+    },
+    {
+      "id": "farmers-insurance",
+      "company_id": "farmers-insurance",
+      "path": "companies/farmers-insurance/monitors/farmers-insurance.json",
+      "recipe_sha256": "5590629329a2e71eacb9c8e00d21a0c6d2f5547383fd272d160b5a6b9dbdf2e3",
+      "strategy": "generic_html",
+      "request_url": "https://jobs.farmersinsurance.com/search/",
+      "careers_url": "https://jobs.farmersinsurance.com/search",
+      "checked_at": "2026-10-03T22:09:38.193212+00:00",
+      "job_count": 25,
+      "pages": 6,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 20 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "jobs.farmersinsurance.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Sr. Field Territory Manager - Kentucky",
+          "url": "https://jobs.farmersinsurance.com/job/Sr_-Field-Territory-Manager-Kentucky-KY/1371371257"
+        },
+        {
+          "title": "Inside Territory Manager - Midwest Region",
+          "url": "https://jobs.farmersinsurance.com/job/Inside-Territory-Manager-Midwest-Region-KS/1371372157"
+        }
+      ]
+    },
+    {
+      "id": "fidelity-national-information-services",
+      "company_id": "fidelity-national-information-services",
+      "path": "companies/fidelity-national-information-services/monitors/fidelity-national-information-services.json",
+      "recipe_sha256": "12e03971699595b2afe26180e51c27dbbebcf38394782507ef142b49fdce9717",
+      "strategy": "workday",
+      "request_url": "https://fis.wd5.myworkdayjobs.com/wday/cxs/fis/SearchJobs/jobs",
+      "careers_url": "https://fis.wd5.myworkdayjobs.com/SearchJobs",
+      "checked_at": "2026-10-03T22:13:37.325411+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "fis.wd5.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Banking PMO Program Manager Sr. Lead",
+          "url": "https://fis.wd5.myworkdayjobs.com/SearchJobs/job/US-GA-ATL-201-STE-900/Banking-PMO-Program-Manager-Sr-Lead_JR0308125"
+        },
+        {
+          "title": "Sr FP&A Analyst",
+          "url": "https://fis.wd5.myworkdayjobs.com/SearchJobs/job/US-FL-JAX-347/Sr-FP-A-Analyst_JR0309755"
+        }
+      ]
+    },
+    {
+      "id": "fluor",
+      "company_id": "fluor",
+      "path": "companies/fluor/monitors/fluor.json",
+      "recipe_sha256": "0a53a0c4243a2736de62b13843267b538222a33e7f6e4973ef79a5f655c0c66b",
+      "strategy": "generic_html",
+      "request_url": "https://thrivecareers.fluor.com/search/",
+      "careers_url": "https://thrivecareers.fluor.com/search",
+      "checked_at": "2026-10-03T22:09:38.194263+00:00",
+      "job_count": 20,
+      "pages": 6,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 15 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "thrivecareers.fluor.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Boilermaker Welder - Tube",
+          "url": "https://thrivecareers.fluor.com/job/Graham-Boilermaker-Welder-Tube-TX/1373451100"
+        },
+        {
+          "title": "Boilermaker",
+          "url": "https://thrivecareers.fluor.com/job/Graham-Boilermaker-TX/1373449700"
+        }
+      ]
+    },
+    {
+      "id": "gap",
+      "company_id": "gap",
+      "path": "companies/gap/monitors/gap.json",
+      "recipe_sha256": "a3fff53623ff0c68fd76aacb6c1dafbee16b405a5f349a440915ce9e46daad40",
+      "strategy": "workday",
+      "request_url": "https://gapinc.wd1.myworkdayjobs.com/wday/cxs/gapinc/GAPINC/jobs",
+      "careers_url": "https://gapinc.wd1.myworkdayjobs.com/GAPINC",
+      "checked_at": "2026-10-03T22:09:42.203659+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "gapinc.wd1.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "General manager - Shops On The Circle",
+          "url": "https://gapinc.wd1.myworkdayjobs.com/GAPINC/job/06141-ON-Shops-On-The-Circle/General-manager---Shops-On-The-Circle_R222324-1"
+        },
+        {
+          "title": "General Manager - Willowbrook-Houston",
+          "url": "https://gapinc.wd1.myworkdayjobs.com/GAPINC/job/05366-ON-Willowbrook-Houston/General-Manager---Willowbrook-Houston_R222353"
+        }
+      ]
+    },
+    {
+      "id": "general-mills",
+      "company_id": "general-mills",
+      "path": "companies/general-mills/monitors/general-mills.json",
+      "recipe_sha256": "63c1e5113d61e68f962d87118a76dda4afe902dc7b62bdc41dbf20649ccb6893",
+      "strategy": "workday",
+      "request_url": "https://genmills.wd1.myworkdayjobs.com/wday/cxs/genmills/GMI_External_Careers/jobs",
+      "careers_url": "https://genmills.wd1.myworkdayjobs.com/GMI_External_Careers",
+      "checked_at": "2026-10-03T22:09:42.293669+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "genmills.wd1.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Senior Recruiter",
+          "url": "https://genmills.wd1.myworkdayjobs.com/GMI_External_Careers/job/Minneapolis-MN/Senior-Recruiter_10130834"
+        },
+        {
+          "title": "Industrial Electrician",
+          "url": "https://genmills.wd1.myworkdayjobs.com/GMI_External_Careers/job/Cincinnati-OH/Industrial-Electrician_10130320"
+        }
+      ]
+    },
+    {
+      "id": "graphic-packaging-holding",
+      "company_id": "graphic-packaging-holding",
+      "path": "companies/graphic-packaging-holding/monitors/graphic-packaging-holding.json",
+      "recipe_sha256": "0e1904da87e3b18b6ad75139604ac51bc158a763beaafdc4c138a59e6ff50df8",
+      "strategy": "generic_json",
+      "request_url": "https://careers.graphicpkg.com/api/mcp/jobs",
+      "careers_url": "https://careers.graphicpkg.com/search-jobs",
+      "checked_at": "2026-10-03T22:13:37.941378+00:00",
+      "job_count": 10,
+      "pages": 1,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "career55.sapsf.eu"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Press Operator Assistant",
+          "url": "https://career55.sapsf.eu/careers?company=graphicpac&career_ns=job_application&career_job_req_id=14329"
+        },
+        {
+          "title": "Press Operator",
+          "url": "https://career55.sapsf.eu/careers?company=graphicpac&career_ns=job_application&career_job_req_id=14237"
+        }
+      ]
+    },
+    {
+      "id": "ingersoll-rand",
+      "company_id": "ingersoll-rand",
+      "path": "companies/ingersoll-rand/monitors/ingersoll-rand.json",
+      "recipe_sha256": "ef085092ac87a368ace90a2e4363ebe16dd143b0c59e1b50be1011e037edc414",
+      "strategy": "generic_html",
+      "request_url": "https://careers.irco.com/search/",
+      "careers_url": "https://careers.irco.com/search",
+      "checked_at": "2026-10-03T22:13:38.722668+00:00",
+      "job_count": 25,
+      "pages": 6,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 20 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "careers.irco.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Product Manager Tools",
+          "url": "https://careers.irco.com/job/Chalifert-Product-Manager-Tools-77-77144/1397984600"
+        },
+        {
+          "title": "JDE Applications Developer (Finance)",
+          "url": "https://careers.irco.com/job/Bangalore-JDE-Applications-Developer-%28Finance%29-KA-560-029/1389697800"
+        }
+      ]
+    },
+    {
+      "id": "insight-enterprises",
+      "company_id": "insight-enterprises",
+      "path": "companies/insight-enterprises/monitors/insight-enterprises.json",
+      "recipe_sha256": "7ee517abb093b3484e00f8a014a13ddfc5908f07114b41ae194c55e4991a6c60",
+      "strategy": "generic_html",
+      "request_url": "https://jobsearch.insight.com/search/",
+      "careers_url": "https://jobsearch.insight.com/search",
+      "checked_at": "2026-10-03T22:13:42.369352+00:00",
+      "job_count": 25,
+      "pages": 6,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 20 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "jobsearch.insight.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Federal Client Executive, Civilian",
+          "url": "https://jobsearch.insight.com/job/Federal-Client-Executive%2C-Civilian-AZ-11111/1416511600"
+        },
+        {
+          "title": "AP Analyst",
+          "url": "https://jobsearch.insight.com/job/Pasig-AP-Analyst/1426825100"
+        }
+      ]
+    },
+    {
+      "id": "j-m-smucker",
+      "company_id": "j-m-smucker",
+      "path": "companies/j-m-smucker/monitors/j-m-smucker.json",
+      "recipe_sha256": "03acd454865e110a5810e7c1102c36a6a6d27837fce4dd2bfd0b7fc5aebcee29",
+      "strategy": "workday",
+      "request_url": "https://smucker.wd5.myworkdayjobs.com/wday/cxs/smucker/US_External_Careers/jobs",
+      "careers_url": "https://smucker.wd5.myworkdayjobs.com/US_External_Careers",
+      "checked_at": "2026-10-03T22:13:42.694094+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "smucker.wd5.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Multi-Craft Maintenance",
+          "url": "https://smucker.wd5.myworkdayjobs.com/US_External_Careers/job/Decatur-AL/Multi-Craft-Maintenance_115953"
+        },
+        {
+          "title": "Human Resources Intern, Summer 2027",
+          "url": "https://smucker.wd5.myworkdayjobs.com/US_External_Careers/job/Orrville-OH/Human-Resources-Intern--Summer-2027_115918"
+        }
+      ]
+    },
+    {
+      "id": "jetblue-airways",
+      "company_id": "jetblue-airways",
+      "path": "companies/jetblue-airways/monitors/jetblue-airways.json",
+      "recipe_sha256": "c03c27e034b93e719ee3221d35f58edaff1601387fbab32de255477169b89927",
+      "strategy": "generic_html",
+      "request_url": "https://careers.jetblue.com/search/",
+      "careers_url": "https://careers.jetblue.com/search",
+      "checked_at": "2026-10-03T22:13:46.023226+00:00",
+      "job_count": 25,
+      "pages": 6,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 20 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "careers.jetblue.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Manager People Data Insights",
+          "url": "https://careers.jetblue.com/job/Long-Island-City-Manager-People-Data-Insights-NY-11101/1406858500"
+        },
+        {
+          "title": "Lead Analyst People Data Insights",
+          "url": "https://careers.jetblue.com/job/Long-Island-City-Lead-Analyst-People-Data-Insights-NY-11101/1406852600"
+        }
+      ]
+    },
+    {
+      "id": "kbr",
+      "company_id": "kbr",
+      "path": "companies/kbr/monitors/kbr.json",
+      "recipe_sha256": "f97da81389502337e7c3531b7e57af08f4d52dfd94328f6cebd8049cb74b2c95",
+      "strategy": "workday",
+      "request_url": "https://kbr.wd5.myworkdayjobs.com/wday/cxs/kbr/KBR_Careers/jobs",
+      "careers_url": "https://kbr.wd5.myworkdayjobs.com/KBR_Careers",
+      "checked_at": "2026-10-03T22:13:49.633536+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "kbr.wd5.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Planner",
+          "url": "https://kbr.wd5.myworkdayjobs.com/KBR_Careers/job/Al-Jubail-Saudi-Arabia/Planner_R2126585"
+        },
+        {
+          "title": "Director, Strategic Finance",
+          "url": "https://kbr.wd5.myworkdayjobs.com/KBR_Careers/job/Houston-Texas/Director--Strategic-Finance_R2130812"
+        }
+      ]
+    },
+    {
+      "id": "keywords-studios",
+      "company_id": "keywords-studios",
+      "path": "companies/keywords-studios/monitors/keywords-studios.json",
+      "recipe_sha256": "d4d262997dfb9d516ec8b2f348b3955f8f78bb147e213e30580c1e3b2002e451",
+      "strategy": "generic_json",
+      "request_url": "https://www.keywordsstudios.com/ajax/filter_stream/Zy9QSWpZMzBXdzN6OThFSHJ6a3lkZz09",
+      "careers_url": "https://www.keywordsstudios.com/en/careers/browse-careers",
+      "checked_at": "2026-10-03T22:02:46.637756+00:00",
+      "job_count": 386,
+      "pages": 1,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "2D Concept Artist",
+          "url": "https://www.keywordsstudios.com/en/careers/browse-careers/AZQ-2d-concept-artist"
+        },
+        {
+          "title": "2D Concept Artist - Volta",
+          "url": "https://www.keywordsstudios.com/en/careers/browse-careers/xTf-2d-concept-artist-volta"
+        }
+      ]
+    },
+    {
+      "id": "lithia",
+      "company_id": "lithia",
+      "path": "companies/lithia/monitors/lithia.json",
+      "recipe_sha256": "a8ca4e32bf933df7aa1e11425b9ae2d2935c4d10f15a1485928aae96d267a252",
+      "strategy": "workday",
+      "request_url": "https://lithia.wd504.myworkdayjobs.com/wday/cxs/lithia/LithiaCareers/jobs",
+      "careers_url": "https://lithia.wd504.myworkdayjobs.com/LithiaCareers",
+      "checked_at": "2026-10-03T22:09:53.069832+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "lithia.wd504.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Part-Time Receptionist",
+          "url": "https://lithia.wd504.myworkdayjobs.com/LithiaCareers/job/Wesley-Chapel-Honda-Wesley-Chapel-FL-33544/Part-Time-Receptionist_R118535"
+        },
+        {
+          "title": "Parts Advisor",
+          "url": "https://lithia.wd504.myworkdayjobs.com/LithiaCareers/job/Acura-of-Palm-Beach-West-Palm-Beach-FL-33411/Parts-Advisor_R118533"
+        }
+      ]
+    },
+    {
+      "id": "marvell-technology",
+      "company_id": "marvell-technology",
+      "path": "companies/marvell-technology/monitors/marvell-technology.json",
+      "recipe_sha256": "be9664e0de535c5870ccc2a40e45eaa2dd9fc8161db706fc061d1759ce99aeac",
+      "strategy": "workday",
+      "request_url": "https://marvell.wd1.myworkdayjobs.com/wday/cxs/marvell/MarvellCareers/jobs",
+      "careers_url": "https://marvell.wd1.myworkdayjobs.com/MarvellCareers",
+      "checked_at": "2026-10-03T22:13:51.459980+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "marvell.wd1.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Principal Signal/Power integrity Engineer",
+          "url": "https://marvell.wd1.myworkdayjobs.com/MarvellCareers/job/Yokneam/Principal-Signal-Power-integrity-Engineer_2603478"
+        },
+        {
+          "title": "Hardware Board Design Senior Staff Engineer",
+          "url": "https://marvell.wd1.myworkdayjobs.com/MarvellCareers/job/Yokneam/Hardware-Board-Design-Senior-Staff-Engineer_2603477"
+        }
+      ]
+    },
+    {
+      "id": "miniclip",
+      "company_id": "miniclip",
+      "path": "companies/miniclip/monitors/miniclip.json",
+      "recipe_sha256": "7378a8787dbfe3dfe5ee694f1d8a7ba2485ae322ea95376c7e03e4eb80c0d53e",
+      "strategy": "generic_html",
+      "request_url": "https://careers.miniclip.com/go/Miniclip-All-Jobs/9013655",
+      "careers_url": "https://careers.miniclip.com/go/Miniclip-All-Jobs/9013655",
+      "checked_at": "2026-10-03T22:03:10.953806+00:00",
+      "job_count": 25,
+      "pages": 26,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment was incomplete for 25 jobs"
+      ],
+      "partial_listing": true,
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Senior Data Scientist",
+          "url": "https://careers.miniclip.com/job/Lisbon-Senior-Data-Scientist/1340963755"
+        },
+        {
+          "title": "Senior Cloud Infrastructure Engineer",
+          "url": "https://careers.miniclip.com/job/Lisbon-Senior-Cloud-Infrastructure-Engineer/1166913055"
+        }
+      ]
+    },
+    {
+      "id": "mohawk-industries",
+      "company_id": "mohawk-industries",
+      "path": "companies/mohawk-industries/monitors/mohawk-industries.json",
+      "recipe_sha256": "0795f528918f6739a5900dcace7605de185ff19cbc4b9c65cd745700cd7b8c7a",
+      "strategy": "generic_html",
+      "request_url": "https://careers.mohawkind.com/search/",
+      "careers_url": "https://careers.mohawkind.com/search",
+      "checked_at": "2026-10-03T22:13:53.291772+00:00",
+      "job_count": 25,
+      "pages": 6,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 20 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "careers.mohawkind.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Training Coordinator",
+          "url": "https://careers.mohawkind.com/job/Chatsworth-Training-Coordinator-Geor-30705/1389787400"
+        },
+        {
+          "title": "QUARTZ - MOLD LINE OPERATOR - D SHIFT",
+          "url": "https://careers.mohawkind.com/DalTile/job/Dickson-QUARTZ-MOLD-LINE-OPERATOR-D-SHIFT-Tenn-37055/1416567400"
+        }
+      ]
+    },
+    {
+      "id": "moody-s",
+      "company_id": "moody-s",
+      "path": "companies/moody-s/monitors/moody-s.json",
+      "recipe_sha256": "23a458a8a8601895a1a8dc38efd1609f3ac9475af3b0464bf2b3b49356ac9a34",
+      "strategy": "generic_html",
+      "request_url": "https://careers.moodys.com/en/search-jobs",
+      "careers_url": "https://careers.moodys.com/en/search-jobs",
+      "checked_at": "2026-10-03T22:13:57.027135+00:00",
+      "job_count": 15,
+      "pages": 6,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 10 jobs after the configured 5-posting limit"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "careers.moodys.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "AVP-Business Analysis",
+          "url": "https://careers.moodys.com/en/job/bengaluru/avp-business-analysis/49841/101475309008"
+        },
+        {
+          "title": "Sr Data Scientist",
+          "url": "https://careers.moodys.com/en/job/bengaluru/sr-data-scientist/49841/101475308992"
+        }
+      ]
+    },
+    {
+      "id": "mosaic-canada",
+      "company_id": "mosaic-canada",
+      "path": "companies/mosaic-canada/monitors/mosaic-canada.json",
+      "recipe_sha256": "dd3f3eb3fc15c672927694406b0ffaee4bbe22623788530c4a33d264af276d43",
+      "strategy": "generic_json",
+      "request_url": "https://acosta.jobs/locations/can/agency/mosaic/jobs/feeds/json/",
+      "careers_url": "https://acosta.jobs/locations/can/agency/mosaic/jobs",
+      "checked_at": "2026-10-03T22:03:14.206873+00:00",
+      "job_count": 202,
+      "pages": 15,
+      "complete": true,
+      "warnings": [],
+      "partial_listing": false,
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": {
+        "predicates": [
+          {
+            "phase": "listing",
+            "path": "country_short",
+            "operator": "equals_ci",
+            "values": [
+              "CAN"
+            ]
+          }
+        ]
+      },
+      "sample_jobs": [
+        {
+          "title": "ABR - Alcohol Sampling Brand Ambassador - Edmonton",
+          "url": "https://acosta.jobs/F5720B12DBDA450B94CEEE41A452EC1A24"
+        },
+        {
+          "title": "Loblaw - Food Sampling Brand Ambassador - Surrey",
+          "url": "https://acosta.jobs/9692EB6DA2F6475F8E9873326D599B1724"
+        }
+      ]
+    },
+    {
+      "id": "nasdaq",
+      "company_id": "nasdaq",
+      "path": "companies/nasdaq/monitors/nasdaq.json",
+      "recipe_sha256": "a2f7ab7cc9759217e25b94845daa050845d92101d36508599704145a24bb5e20",
+      "strategy": "workday",
+      "request_url": "https://nasdaq.wd1.myworkdayjobs.com/wday/cxs/nasdaq/Global_External_Site/jobs",
+      "careers_url": "https://nasdaq.wd1.myworkdayjobs.com/Global_External_Site",
+      "checked_at": "2026-10-03T22:14:00.825509+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "nasdaq.wd1.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Strategic Sourcing and Procurement Specialist",
+          "url": "https://nasdaq.wd1.myworkdayjobs.com/Global_External_Site/job/USA---New-York-City---New-York/Strategic-Sourcing-and-Procurement-Specialist_R0027088"
+        },
+        {
+          "title": "Lead QA Test Engineer",
+          "url": "https://nasdaq.wd1.myworkdayjobs.com/Global_External_Site/job/CA-Toronto-York-St-2425/Lead-QA-Test-Engineer_R0026921"
+        }
+      ]
+    },
+    {
+      "id": "news-corp",
+      "company_id": "news-corp",
+      "path": "companies/news-corp/monitors/news-corp.json",
+      "recipe_sha256": "6afdfca15f0255e066c8f68b499ea1b89a8a4ac0f85892217619936e89d6044d",
+      "strategy": "generic_json",
+      "request_url": "https://careers.newscorp.com/jobs/feeds/json",
+      "careers_url": "https://careers.newscorp.com/jobs",
+      "checked_at": "2026-10-03T22:14:03.130649+00:00",
+      "job_count": 15,
+      "pages": 1,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "careers.newscorp.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Assistant Foreign Editor",
+          "url": "https://careers.newscorp.com/97CF5592A1B44AA1AAA5D3797B718D9824"
+        },
+        {
+          "title": "Sr Mgr, Software Engineering",
+          "url": "https://careers.newscorp.com/4CC702F1C1984C7C8068597A606FEC9724"
+        }
+      ]
+    },
+    {
+      "id": "nvr",
+      "company_id": "nvr",
+      "path": "companies/nvr/monitors/nvr.json",
+      "recipe_sha256": "8aaefb2ea091cfc88dfd4cb1092cf1b5687c6055d0f367769c87c301147f5410",
+      "strategy": "generic_html",
+      "request_url": "https://phg.tbe.taleo.net/phg01/ats/careers/v2/searchResults?org=NVRINC&cws=59",
+      "careers_url": "https://phg.tbe.taleo.net/phg01/ats/careers/v2/searchResults?org=NVRINC&cws=59",
+      "checked_at": "2026-10-03T22:14:05.079976+00:00",
+      "job_count": 10,
+      "pages": 11,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment was incomplete for 10 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "phg.tbe.taleo.net"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Architectural Specialist – Mechanical Systems",
+          "url": "https://phg.tbe.taleo.net/phg01/ats/careers/v2/viewRequisition?org=NVRINC&cws=59&rid=37276"
+        },
+        {
+          "title": "Architectural Specialist - Permit Support",
+          "url": "https://phg.tbe.taleo.net/phg01/ats/careers/v2/viewRequisition?org=NVRINC&cws=59&rid=38041"
+        }
+      ]
+    },
+    {
+      "id": "openai",
+      "company_id": "openai",
+      "path": "companies/openai/monitors/openai.json",
+      "recipe_sha256": "b01fb7859685d82a526b2e0508218c5f34fa6693b6d9c567f6d93e3b9cd25a86",
+      "strategy": "ashby",
+      "request_url": "https://api.ashbyhq.com/posting-api/job-board/openai",
+      "careers_url": "https://openai.com/careers/search",
+      "checked_at": "2026-10-03T22:01:58.550545+00:00",
+      "job_count": 828,
+      "pages": 1,
+      "complete": true,
+      "warnings": [],
+      "partial_listing": false,
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Technical Program Manager, Compute Infrastructure",
+          "url": "https://jobs.ashbyhq.com/openai/8fb1615c-34bf-47c4-a1d1-b7b2f836bbd3"
+        },
+        {
+          "title": "Research Engineer",
+          "url": "https://jobs.ashbyhq.com/openai/240d459b-696d-43eb-8497-fab3e56ecd9b"
+        }
+      ]
+    },
+    {
+      "id": "optimum-communications",
+      "company_id": "optimum-communications",
+      "path": "companies/optimum-communications/monitors/optimum-communications.json",
+      "recipe_sha256": "e9d33e5d698c5204c6e6af45e8002f4cd17967c2d63f994b5e9c5ad2747c5a45",
+      "strategy": "generic_html",
+      "request_url": "https://www.optimumcareers.com/search/",
+      "careers_url": "https://www.optimumcareers.com/search",
+      "checked_at": "2026-10-03T22:14:07.195292+00:00",
+      "job_count": 25,
+      "pages": 6,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 20 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "www.optimumcareers.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Retail Sales Consultant - Bi-Lingual",
+          "url": "https://www.optimumcareers.com/job/Ossining-Retail-Sales-Consultant-Bi-Lingual-NY-10562/1426833400"
+        },
+        {
+          "title": "Door to Door Sales Representative",
+          "url": "https://www.optimumcareers.com/job/Branson-Door-to-Door-Sales-Representative-MO-65616/1426827100"
+        }
+      ]
+    },
+    {
+      "id": "oshkosh",
+      "company_id": "oshkosh",
+      "path": "companies/oshkosh/monitors/oshkosh.json",
+      "recipe_sha256": "5ba7c4aeb1d4fb04808298484b1075fcd8130be3cb5e93051bbe293f637e834a",
+      "strategy": "workday",
+      "request_url": "https://oshkoshcorporation.wd5.myworkdayjobs.com/wday/cxs/oshkoshcorporation/Oshkosh/jobs",
+      "careers_url": "https://oshkoshcorporation.wd5.myworkdayjobs.com/Oshkosh",
+      "checked_at": "2026-10-03T22:14:09.834368+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "oshkoshcorporation.wd5.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Journeyman Electrician - IAH Airport (FAC)",
+          "url": "https://oshkoshcorporation.wd5.myworkdayjobs.com/Oshkosh/job/Houston-Texas-United-States/Journeyman-Electrician---IAH-Airport--FAC-_R50837"
+        },
+        {
+          "title": "Finance Analyst Lead",
+          "url": "https://oshkoshcorporation.wd5.myworkdayjobs.com/Oshkosh/job/Appleton-Wisconsin-United-States/Finance-Analyst-Lead_R50753"
+        }
+      ]
+    },
+    {
+      "id": "ovintiv",
+      "company_id": "ovintiv",
+      "path": "companies/ovintiv/monitors/ovintiv.json",
+      "recipe_sha256": "91f95e894d108a3b16573c5b6909d08b9d1b611693e163066fa9a0f9836e15ea",
+      "strategy": "workday",
+      "request_url": "https://ovintiv.wd3.myworkdayjobs.com/wday/cxs/ovintiv/ovintivcareers/jobs",
+      "careers_url": "https://ovintiv.wd3.myworkdayjobs.com/ovintivcareers",
+      "checked_at": "2026-10-03T22:14:11.103775+00:00",
+      "job_count": 5,
+      "pages": 6,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "ovintiv.wd3.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Contract Workday Learning & Training Governance Specialist",
+          "url": "https://ovintiv.wd3.myworkdayjobs.com/ovintivcareers/job/Denver-CO-US/Contract-Workday-Learning---Training-Governance-Specialist_R2600"
+        },
+        {
+          "title": "Intern Land Negotiator",
+          "url": "https://ovintiv.wd3.myworkdayjobs.com/ovintivcareers/job/Denver-CO-US/Intern-Land-Negotiator_R2599"
+        }
+      ]
+    },
+    {
+      "id": "packaging-corp-of-america",
+      "company_id": "packaging-corp-of-america",
+      "path": "companies/packaging-corp-of-america/monitors/packaging-corp-of-america.json",
+      "recipe_sha256": "edf04b38c1b6fbf7de5a8e2666b899489db5f9d8d6cee7fe08f4b83822816186",
+      "strategy": "generic_html",
+      "request_url": "https://careers.packagingcorp.com/career-search/",
+      "careers_url": "https://careers.packagingcorp.com/career-search",
+      "checked_at": "2026-10-03T22:14:11.628384+00:00",
+      "outcome": "blocked-error",
+      "error": "'ascii' codec can't encode character '\\u2019' in position 66: ordinal not in range(128)",
+      "job_count": 0,
+      "verdict": "blocked",
+      "source_filter": null,
+      "sample_jobs": []
+    },
+    {
+      "id": "palo-alto-networks",
+      "company_id": "palo-alto-networks",
+      "path": "companies/palo-alto-networks/monitors/palo-alto-networks.json",
+      "recipe_sha256": "231f8379cd6cd1f5c20e43c03f33094db409180ccd36c65fb9139795b14d8da2",
+      "strategy": "workday",
+      "request_url": "https://paloaltonetworks.wd5.myworkdayjobs.com/wday/cxs/paloaltonetworks/panwexternalcareers/jobs",
+      "careers_url": "https://paloaltonetworks.wd5.myworkdayjobs.com/panwexternalcareers",
+      "checked_at": "2026-10-03T22:14:11.955061+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "paloaltonetworks.wd5.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Senior Sales Manager - SASE",
+          "url": "https://paloaltonetworks.wd5.myworkdayjobs.com/panwexternalcareers/job/Munich-Germany/Senior-Sales-Manager---SASE_JR-022658"
+        },
+        {
+          "title": "Senior Product Manager — Logging & Streaming Data Platform",
+          "url": "https://paloaltonetworks.wd5.myworkdayjobs.com/panwexternalcareers/job/Office---USA---CA---Headquarters/Senior-Product-Manager_JR-022867"
+        }
+      ]
+    },
+    {
+      "id": "primoris-services",
+      "company_id": "primoris-services",
+      "path": "companies/primoris-services/monitors/primoris-services.json",
+      "recipe_sha256": "5bcc533df1fc91fd2a98cc49dc2291a7436261ff4b915c1376949a5cd5c45ed8",
+      "strategy": "workday",
+      "request_url": "https://prim.wd108.myworkdayjobs.com/wday/cxs/prim/Primoris/jobs",
+      "careers_url": "https://prim.wd108.myworkdayjobs.com/Primoris",
+      "checked_at": "2026-10-03T22:14:16.519108+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "prim.wd108.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Join our Civil/Structural Engineering Talent Community today! (Primoris Renewable Energy)",
+          "url": "https://prim.wd108.myworkdayjobs.com/Primoris/job/Colorado/Join-our-Civil-Structural-Engineering-Talent-Community-today---Primoris-Renewable-Energy-_JR101575"
+        },
+        {
+          "title": "Client Account Manager",
+          "url": "https://prim.wd108.myworkdayjobs.com/Primoris/job/Denver-CO/Client-Account-Manager_-1"
+        }
+      ]
+    },
+    {
+      "id": "prologis",
+      "company_id": "prologis",
+      "path": "companies/prologis/monitors/prologis.json",
+      "recipe_sha256": "da97db46e30c887620b98a20909c3e421d4aea433b7185b96db37cd611241d2b",
+      "strategy": "workday",
+      "request_url": "https://prologis.wd5.myworkdayjobs.com/wday/cxs/prologis/prologis_external_careers/jobs",
+      "careers_url": "https://prologis.wd5.myworkdayjobs.com/prologis_external_careers",
+      "checked_at": "2026-10-03T22:14:16.624992+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "prologis.wd5.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Director, Energy Markets",
+          "url": "https://prologis.wd5.myworkdayjobs.com/Prologis_External_Careers/job/San-Francisco-California/Director--Energy-Markets_R6811"
+        },
+        {
+          "title": "Director, Development",
+          "url": "https://prologis.wd5.myworkdayjobs.com/Prologis_External_Careers/job/Phoenix-Arizona/Director--Development_R6790"
+        }
+      ]
+    },
+    {
+      "id": "pultegroup",
+      "company_id": "pultegroup",
+      "path": "companies/pultegroup/monitors/pultegroup.json",
+      "recipe_sha256": "9b6ae1807febc1b496ce81067e935409b8da992bba87e2a39edb0c0c4aa0038a",
+      "strategy": "workday",
+      "request_url": "https://pultegroup.wd1.myworkdayjobs.com/wday/cxs/pultegroup/PGI/jobs",
+      "careers_url": "https://pultegroup.wd1.myworkdayjobs.com/PGI",
+      "checked_at": "2026-10-03T22:09:55.519127+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "pultegroup.wd1.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Mortgage Branch Manager (Pulte Mortgage)",
+          "url": "https://pultegroup.wd1.myworkdayjobs.com/PGI/job/Bellevue-WA/Mortgage-Branch-Manager--Pulte-Mortgage-_JR9686"
+        },
+        {
+          "title": "Mortgage Branch Manager (Pule Mortgage)",
+          "url": "https://pultegroup.wd1.myworkdayjobs.com/PGI/job/Houston-TX/Mortgage-Branch-Manager--Pule-Mortgage-_JR9687"
+        }
+      ]
+    },
+    {
+      "id": "pvh",
+      "company_id": "pvh",
+      "path": "companies/pvh/monitors/pvh.json",
+      "recipe_sha256": "6d08a4280366a2c642cae46111e01ac5ce9d6a50511224dbdd86ed0f5c8fd53c",
+      "strategy": "workday",
+      "request_url": "https://pvh.wd1.myworkdayjobs.com/wday/cxs/pvh/PVH_Careers/jobs",
+      "careers_url": "https://pvh.wd1.myworkdayjobs.com/PVH_Careers",
+      "checked_at": "2026-10-03T22:14:28.531950+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "pvh.wd1.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Temporary Sales Associate - Part-Time",
+          "url": "https://pvh.wd1.myworkdayjobs.com/PVH_Careers/job/Vaughan-ON-Canada/Temporary-Sales-Associate---Part-Time_R55265"
+        },
+        {
+          "title": "Floor Supervisor - Part-Time",
+          "url": "https://pvh.wd1.myworkdayjobs.com/PVH_Careers/job/Retail-TH-Chesterfield-MO/Floor-Supervisor---Part-Time_R60672"
+        }
+      ]
+    },
+    {
+      "id": "qvc-group",
+      "company_id": "qvc-group",
+      "path": "companies/qvc-group/monitors/qvc-group.json",
+      "recipe_sha256": "31e672d564e0a161c771f18b195b9c44df75c1c3ffe5ac398e30dcae1917bcd4",
+      "strategy": "workday",
+      "request_url": "https://qvc.wd5.myworkdayjobs.com/wday/cxs/qvc/QRG/jobs",
+      "careers_url": "https://qvc.wd5.myworkdayjobs.com/QRG",
+      "checked_at": "2026-10-03T22:14:29.175969+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "qvc.wd5.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Area Mgr Site Quality Operations",
+          "url": "https://qvc.wd5.myworkdayjobs.com/QRG/job/USA-PA-Bethlehem/Area-Mgr-Site-Quality-Operations_R83671"
+        },
+        {
+          "title": "Scenic Stylist",
+          "url": "https://qvc.wd5.myworkdayjobs.com/QRG/job/USA-PA-West-Chester/Scenic-Stylist_R83434"
+        }
+      ]
+    },
+    {
+      "id": "raymond-james",
+      "company_id": "raymond-james",
+      "path": "companies/raymond-james/monitors/raymond-james.json",
+      "recipe_sha256": "7f739872341bfd6ba73e3ad94711dc7625aa22c234c7375ee0fe091a4d9d6209",
+      "strategy": "workday",
+      "request_url": "https://raymondjames.wd1.myworkdayjobs.com/wday/cxs/raymondjames/RaymondJamesCareers/jobs",
+      "careers_url": "https://raymondjames.wd1.myworkdayjobs.com/RaymondJamesCareers",
+      "checked_at": "2026-10-03T22:09:57.621880+00:00",
+      "job_count": 15,
+      "pages": 16,
+      "complete": false,
+      "warnings": [
+        "removed 5 duplicate source IDs",
+        "description detail enrichment was incomplete for 1 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "raymondjames.wd1.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Early Careers Sourcing, Engagement & Recruiting Operations Specialist",
+          "url": "https://raymondjames.wd1.myworkdayjobs.com/RaymondJamesCareers/job/Saint-Petersburg-Florida---United-States/Early-Careers-Sourcing--Engagement---Recruiting-Operations-Specialist_R-0013226"
+        },
+        {
+          "title": "Sr. Outbound AdvisorChoice Consultant",
+          "url": "https://raymondjames.wd1.myworkdayjobs.com/RaymondJamesCareers/job/Remote-New-York---United-States/Sr-Outbound-AdvisorChoice-Consultant_R-0013289"
+        }
+      ]
+    },
+    {
+      "id": "rockwell-automation",
+      "company_id": "rockwell-automation",
+      "path": "companies/rockwell-automation/monitors/rockwell-automation.json",
+      "recipe_sha256": "8e93cc38b972cd49974758fa85684a054253252a1fc7b6a7f8736b41ca6c3adc",
+      "strategy": "workday",
+      "request_url": "https://rockwellautomation.wd1.myworkdayjobs.com/wday/cxs/rockwellautomation/External_Rockwell_Automation/jobs",
+      "careers_url": "https://rockwellautomation.wd1.myworkdayjobs.com/External_Rockwell_Automation",
+      "checked_at": "2026-10-03T22:14:32.243344+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "rockwellautomation.wd1.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Industrial Engineer",
+          "url": "https://rockwellautomation.wd1.myworkdayjobs.com/External_Rockwell_Automation/job/India-Kancheepuram/Industrial-Engineer_R26-5948"
+        },
+        {
+          "title": "Customer Support Agent",
+          "url": "https://rockwellautomation.wd1.myworkdayjobs.com/External_Rockwell_Automation/job/Aldridge-England-United-Kingdom/Customer-Support-Agent_R26-5811"
+        }
+      ]
+    },
+    {
+      "id": "sanmina",
+      "company_id": "sanmina",
+      "path": "companies/sanmina/monitors/sanmina.json",
+      "recipe_sha256": "a31e09802f5d5811ec693210fc5a3e5afb89a25e194474257ade919807d73375",
+      "strategy": "generic_html",
+      "request_url": "https://sanminacareers.mua.hrdepartment.com/hr/ats/JobSearch/viewAll",
+      "careers_url": "https://sanminacareers.mua.hrdepartment.com/hr/ats/JobSearch/viewAll",
+      "checked_at": "2026-10-03T22:14:35.239153+00:00",
+      "job_count": 25,
+      "pages": 21,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 5 jobs after the configured 20-posting limit",
+        "description detail enrichment was incomplete for 20 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "sanminacareers.mua.hrdepartment.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Process Engineer",
+          "url": "https://sanminacareers.mua.hrdepartment.com/hr/ats/Posting/view/112590"
+        },
+        {
+          "title": "Process Engineer",
+          "url": "https://sanminacareers.mua.hrdepartment.com/hr/ats/Posting/view/114655"
+        }
+      ]
+    },
+    {
+      "id": "securian-financial-group",
+      "company_id": "securian-financial-group",
+      "path": "companies/securian-financial-group/monitors/securian-financial-group.json",
+      "recipe_sha256": "be25a4e68fc72234659eb14a1bbcad1ffedd67bfa2f68abb971afaadc20d603b",
+      "strategy": "workday",
+      "request_url": "https://hq.wd12.myworkdayjobs.com/wday/cxs/hq/Securian_External/jobs",
+      "careers_url": "https://hq.wd12.myworkdayjobs.com/Securian_External",
+      "checked_at": "2026-10-03T22:14:47.373465+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "hq.wd12.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "External Wholesaler (RVP) - SecureCare",
+          "url": "https://hq.wd12.myworkdayjobs.com/Securian_External/job/Kansas-Remote/External-Wholesaler--RVP----SecureCare_R-010904-1"
+        },
+        {
+          "title": "Life Underwriting Consultant (Remote)",
+          "url": "https://hq.wd12.myworkdayjobs.com/Securian_External/job/Minnesota-Remote/Life-Underwriting-Consultant_R-010684-1"
+        }
+      ]
+    },
+    {
+      "id": "snk",
+      "company_id": "snk",
+      "path": "companies/snk/monitors/snk.json",
+      "recipe_sha256": "bb0fa223be1407589728d2cd270eeb3abfac39f3e3a7319b7d31132ca0cd8bfe",
+      "strategy": "generic_html",
+      "request_url": "https://recruit.jobcan.jp/snk-corp/list",
+      "careers_url": "https://recruit.jobcan.jp/snk-corp/list",
+      "checked_at": "2026-10-03T22:03:29.658221+00:00",
+      "job_count": 10,
+      "pages": 1,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "【東京】第1スタジオ ゲームプログラマー（メンバー②）",
+          "url": "https://recruit.jobcan.jp/snk-corp/job_offers/2196631?hide_breadcrumb=false&hide_search=false"
+        },
+        {
+          "title": "【東京】第3スタジオ プロデューサー",
+          "url": "https://recruit.jobcan.jp/snk-corp/job_offers/2264985?hide_breadcrumb=false&hide_search=false"
+        }
+      ]
+    },
+    {
+      "id": "solventum",
+      "company_id": "solventum",
+      "path": "companies/solventum/monitors/solventum.json",
+      "recipe_sha256": "8fe77d071059fa9bc5ded147940c721cf40c0db897b2b7ebfd200168a6f6676e",
+      "strategy": "workday",
+      "request_url": "https://healthcare.wd1.myworkdayjobs.com/wday/cxs/healthcare/Search/jobs",
+      "careers_url": "https://healthcare.wd1.myworkdayjobs.com/Search",
+      "checked_at": "2026-10-03T22:14:47.504436+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "healthcare.wd1.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Senior AI ML Engineer",
+          "url": "https://healthcare.wd1.myworkdayjobs.com/Search/job/IN-Bangalore-Kar/Senior-AI-ML-Engineer_R01134227"
+        },
+        {
+          "title": "Field Service Lead — Irondale, AL",
+          "url": "https://healthcare.wd1.myworkdayjobs.com/Search/job/USA-Alabama-Irondale/Field-Service-Lead---Irondale--AL_R01134100"
+        }
+      ]
+    },
+    {
+      "id": "taylor-morrison-home",
+      "company_id": "taylor-morrison-home",
+      "path": "companies/taylor-morrison-home/monitors/taylor-morrison-home.json",
+      "recipe_sha256": "7082a3ea2ba6ebc47075f4c008ef7f80930b0100a2abc74e585469a800adb3d5",
+      "strategy": "workday",
+      "request_url": "https://taylormorrison.wd1.myworkdayjobs.com/wday/cxs/taylormorrison/TaylorMorrisonCareers/jobs",
+      "careers_url": "https://taylormorrison.wd1.myworkdayjobs.com/TaylorMorrisonCareers",
+      "checked_at": "2026-10-03T22:14:48.678087+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "taylormorrison.wd1.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Build-To-Rent (BTR) Regional Staff Accountant",
+          "url": "https://taylormorrison.wd1.myworkdayjobs.com/TaylorMorrisonCareers/job/AZ---Scottsdale-Corporate-Office-4900-N-Scottsdale-Road-Suite-6000-Scottsdale-AZ-85251/BTR-Financial-Analyst_R0014503"
+        },
+        {
+          "title": "Area Design Studio Senior Manager",
+          "url": "https://taylormorrison.wd1.myworkdayjobs.com/TaylorMorrisonCareers/job/TX---Remote/Area-Design-Studio-Senior-Manager_R0014513"
+        }
+      ]
+    },
+    {
+      "id": "vf",
+      "company_id": "vf",
+      "path": "companies/vf/monitors/vf.json",
+      "recipe_sha256": "f7f64c77c3fecc345de434d180f2b578aa97349e7d98797d2522cf9866b5073d",
+      "strategy": "workday",
+      "request_url": "https://vfc.wd5.myworkdayjobs.com/wday/cxs/vfc/vfc_careers/jobs",
+      "careers_url": "https://vfc.wd5.myworkdayjobs.com/vfc_careers",
+      "checked_at": "2026-10-03T22:14:56.380773+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "vfc.wd5.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Kipling: Store Manager - Florida Mall",
+          "url": "https://vfc.wd5.myworkdayjobs.com/vfc_careers/job/USCA--USA--Florida--Orlando-5011---KIP/Kipling--Store-Manager---Florida-Mall_R-20260827-0046-2"
+        },
+        {
+          "title": "Specialist, Product Safety",
+          "url": "https://vfc.wd5.myworkdayjobs.com/vfc_careers/job/ASIA--BGD--Dhaka--Empori-Financial-Tower-Office/Specialist--Product-Safety_R-20260804-0001-1"
+        }
+      ]
+    },
+    {
+      "id": "voya-financial",
+      "company_id": "voya-financial",
+      "path": "companies/voya-financial/monitors/voya-financial.json",
+      "recipe_sha256": "bbfdbc44cf10ac83da82c210200362c3de05e44a7d8f2190349d05c339b048bd",
+      "strategy": "workday",
+      "request_url": "https://godirect.wd5.myworkdayjobs.com/wday/cxs/godirect/voya_jobs/jobs",
+      "careers_url": "https://godirect.wd5.myworkdayjobs.com/voya_jobs",
+      "checked_at": "2026-10-03T22:15:04.467656+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "godirect.wd5.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Benefitfocus Sr Implementation Consultant",
+          "url": "https://godirect.wd5.myworkdayjobs.com/voya_jobs/job/Charleston-SC/Benefitfocus-Sr-Implementation-Consultant_JR0033128"
+        },
+        {
+          "title": "Sr Recordkeeper",
+          "url": "https://godirect.wd5.myworkdayjobs.com/voya_jobs/job/Boston-MA/Sr-Recordkeeper_JR0032971-1"
+        }
+      ]
+    },
+    {
+      "id": "warner-bros-games",
+      "company_id": "warner-bros-games",
+      "path": "companies/warner-bros-games/monitors/warner-bros-games.json",
+      "recipe_sha256": "815731b5a946b042e3aebf9a6d4f8fef1f35f2a999c18e55ae7718e3ec7fed39",
+      "strategy": "generic_json",
+      "request_url": "https://careers.wbd.com/widgets",
+      "careers_url": "https://warnerbrosgames.com/careers",
+      "checked_at": "2026-10-03T22:04:20.362672+00:00",
+      "job_count": 1,
+      "pages": 1,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment was incomplete for 1 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "warnerbros.wd5.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": {
+        "title_contains_any": [
+          "WB Games"
+        ]
+      },
+      "sample_jobs": [
+        {
+          "title": "Principal, Security Engineering & Vulnerability Management for WB Games",
+          "url": "https://warnerbros.wd5.myworkdayjobs.com/global/job/CA-Burbank-Bldg-700-Second-Century-Tower-1/Principal--Security-Engineering---Vulnerability-Management_R000106593/apply"
+        }
+      ]
+    },
+    {
+      "id": "wec-energy-group",
+      "company_id": "wec-energy-group",
+      "path": "companies/wec-energy-group/monitors/wec-energy-group.json",
+      "recipe_sha256": "de6f02bac5cfa74801dd194ce539d908e8a39e2a5e5b4effe433f08027cd3f5b",
+      "strategy": "generic_html",
+      "request_url": "https://careers.wecenergygroup.com/search/",
+      "careers_url": "https://careers.wecenergygroup.com/search",
+      "checked_at": "2026-10-03T22:15:05.806924+00:00",
+      "job_count": 25,
+      "pages": 6,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 20 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "careers.wecenergygroup.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Designer",
+          "url": "https://careers.wecenergygroup.com/We_Energies/job/Appleton-Designer-WI-54911/1353544800"
+        },
+        {
+          "title": "LNG Engineer",
+          "url": "https://careers.wecenergygroup.com/We_Energies/job/Oak-Creek-LNG-Engineer-WI-53154/1436274100"
+        }
+      ]
+    },
+    {
+      "id": "western-digital",
+      "company_id": "western-digital",
+      "path": "companies/western-digital/monitors/western-digital.json",
+      "recipe_sha256": "e3c08ce715217fd254cbf3bfb9f3754482ebcc8a693daafa2efa1b4c100cb1db",
+      "strategy": "generic_html",
+      "request_url": "https://careers.smartrecruiters.com/WesternDigital",
+      "careers_url": "https://careers.smartrecruiters.com/WesternDigital",
+      "checked_at": "2026-10-03T22:15:09.684237+00:00",
+      "job_count": 45,
+      "pages": 1,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 40 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "jobs.smartrecruiters.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Senior Engineer, Manufacturing Engineering",
+          "url": "https://jobs.smartrecruiters.com/WesternDigital/744000152080749-senior-engineer-manufacturing-engineering"
+        },
+        {
+          "title": "Electrical Supplier Quality Engineer",
+          "url": "https://jobs.smartrecruiters.com/WesternDigital/744000151725678-electrical-supplier-quality-engineer"
+        }
+      ]
+    },
+    {
+      "id": "workday",
+      "company_id": "workday",
+      "path": "companies/workday/monitors/workday.json",
+      "recipe_sha256": "25943f87afbd89d75f0035bb105a5465399d92aec4168aed849c995e96369c66",
+      "strategy": "workday",
+      "request_url": "https://workday.wd5.myworkdayjobs.com/wday/cxs/workday/Workday/jobs",
+      "careers_url": "https://workday.wd5.myworkdayjobs.com/Workday",
+      "checked_at": "2026-10-03T22:15:09.906469+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "workday.wd5.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Principal Managing Partner - Industry Capabilities",
+          "url": "https://workday.wd5.myworkdayjobs.com/Workday/job/USA-NY-New-York-City/Principal-Managing-Partner---Healthcare_JR-0107491"
+        },
+        {
+          "title": "Sr. Solution Architect, Enterprise Applications",
+          "url": "https://workday.wd5.myworkdayjobs.com/Workday/job/USA-CA-Pleasanton/Sr-Solution-Architect--Enterprise-Applications_JR-IC-000076-1"
+        }
+      ]
+    },
+    {
+      "id": "xai",
+      "company_id": "xai",
+      "path": "companies/xai/monitors/xai.json",
+      "recipe_sha256": "c483f472f0d916de562cad83b05aed74d2194e80fd4d29786521bee7ca6c6e17",
+      "strategy": "greenhouse",
+      "request_url": "https://boards-api.greenhouse.io/v1/boards/xai/jobs?content=true",
+      "careers_url": "https://job-boards.greenhouse.io/xai",
+      "checked_at": "2026-10-03T22:01:13.606952+00:00",
+      "job_count": 301,
+      "pages": 1,
+      "complete": true,
+      "warnings": [],
+      "partial_listing": false,
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Agency Development Manager",
+          "url": "https://job-boards.greenhouse.io/xai/jobs/5231352007"
+        },
+        {
+          "title": "AI Tutor - Arabic",
+          "url": "https://job-boards.greenhouse.io/xai/jobs/5090171007"
+        }
+      ]
+    },
+    {
+      "id": "xpo",
+      "company_id": "xpo",
+      "path": "companies/xpo/monitors/xpo.json",
+      "recipe_sha256": "d039a60ce5886bc8316c0d411d4984178330fde0323552b6323f70b683ae0643",
+      "strategy": "generic_html",
+      "request_url": "https://jobs.xpo.com/search/",
+      "careers_url": "https://jobs.xpo.com/search",
+      "checked_at": "2026-10-03T22:15:10.271882+00:00",
+      "job_count": 25,
+      "pages": 6,
+      "complete": false,
+      "warnings": [
+        "description detail enrichment skipped 20 jobs after the configured 5-posting limit",
+        "description detail enrichment was incomplete for 5 jobs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "jobs.xpo.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Truck Driver - Home Daily - CDL A",
+          "url": "https://jobs.xpo.com/job/Central-Point-Truck-Driver-Home-Daily-CDL-A-OR-97502/1426804900"
+        },
+        {
+          "title": "Truck Driver - Home Daily - CDL A",
+          "url": "https://jobs.xpo.com/job/Saraland-Truck-Driver-Home-Daily-CDL-A-AL-36571/1426757200"
+        }
+      ]
+    },
+    {
+      "id": "xylem",
+      "company_id": "xylem",
+      "path": "companies/xylem/monitors/xylem.json",
+      "recipe_sha256": "2c5b97c3fe63cced13ec5fd64e53ec4a602f88a0686aa69a9cd9f89176726a0f",
+      "strategy": "workday",
+      "request_url": "https://xylem.wd5.myworkdayjobs.com/wday/cxs/xylem/xylem-careers/jobs",
+      "careers_url": "https://xylem.wd5.myworkdayjobs.com/xylem-careers",
+      "checked_at": "2026-10-03T22:15:13.954919+00:00",
+      "job_count": 17,
+      "pages": 18,
+      "complete": false,
+      "warnings": [
+        "removed 3 duplicate source IDs"
+      ],
+      "partial_listing": true,
+      "posting_hosts": [
+        "xylem.wd5.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Key Account Manager",
+          "url": "https://xylem.wd5.myworkdayjobs.com/xylem-careers/job/Budapest-Hungary/Key-Account-Manager_R48396"
+        },
+        {
+          "title": "Process Operator",
+          "url": "https://xylem.wd5.myworkdayjobs.com/xylem-careers/job/Conroe-Texas/Process-Operator_R50674"
+        }
+      ]
+    },
+    {
+      "id": "zoetis",
+      "company_id": "zoetis",
+      "path": "companies/zoetis/monitors/zoetis.json",
+      "recipe_sha256": "c619503ffce59aa862999cbff633140aba92ccac271c47a5d716083b55173005",
+      "strategy": "workday",
+      "request_url": "https://zoetis.wd5.myworkdayjobs.com/wday/cxs/zoetis/zoetis/jobs",
+      "careers_url": "https://zoetis.wd5.myworkdayjobs.com/zoetis",
+      "checked_at": "2026-10-03T22:15:16.235137+00:00",
+      "job_count": 20,
+      "pages": 21,
+      "complete": false,
+      "warnings": [],
+      "partial_listing": true,
+      "posting_hosts": [
+        "zoetis.wd5.myworkdayjobs.com"
+      ],
+      "outcome": "candidate",
+      "verdict": "pass",
+      "source_filter": null,
+      "sample_jobs": [
+        {
+          "title": "Formulation Specialist I",
+          "url": "https://zoetis.wd5.myworkdayjobs.com/zoetis/job/Kalamazoo---Portage-Road/Formulation-Specialist---Aseptic--2nd-Shift-_JR00021556"
+        },
+        {
+          "title": "Analyst, Corporate Financial Analysis",
+          "url": "https://zoetis.wd5.myworkdayjobs.com/zoetis/job/Parsippany/Analyst--Corporate-Financial-Analysis_JR00020755"
+        }
+      ]
+    }
+  ]
+}

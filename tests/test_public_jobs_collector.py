@@ -266,6 +266,31 @@ def test_publication_budget_counts_retained_generations_without_early_deletion(t
     assert sum(p.stat().st_size for p in api.rglob("*") if p.is_file()) <= publisher.MAX_PUBLISHED_BYTES
 
 
+def test_publication_fits_snippets_to_shared_snapshot_budget_without_losing_details(tmp_path, monkeypatch):
+    from server.public_jobs import publish as publisher
+    record = job()
+    record["description"] = "Full description. " * 1000
+    state = merge(empty_state(), [clean_result(result([record]))], 1)
+    lock = {"catalog_commit": "a" * 40, "collections": []}
+    first = publisher.publish(state, lock, tmp_path, generation="20261003-01", now=NOW)
+    api = tmp_path / "api/v1"
+    prior = api / "snapshots/20261003-01"
+    prior_contents = {p.name: p.read_bytes() for p in prior.iterdir()}
+    prior_bytes = sum(len(content) for content in prior_contents.values())
+    budget = 2 * prior_bytes + (api / "manifest.json").stat().st_size - 500
+    monkeypatch.setattr(publisher, "MAX_PUBLISHED_BYTES", budget)
+    second = publisher.publish(state, lock, tmp_path, generation="20261003-02", now=NOW)
+    assert {p.name: p.read_bytes() for p in prior.iterdir()} == prior_contents
+    search = json.loads((api / second["search_pages"][0]["path"]).read_bytes())["jobs"]
+    details = json.loads((api / second["detail_pages"][0]["path"]).read_bytes())["jobs"]
+    assert len(search) == len(details) == first["total_jobs"] == 1
+    assert len(search[0]["search_text"]) < publisher.MAX_SEARCH_TEXT_CHARS
+    assert details[0]["description"] == record["description"]
+    publisher.retain_generations(tmp_path)
+    assert sum(p.stat().st_size for p in api.rglob("*") if p.is_file()) <= budget
+    publisher.validate_publication(api, second)
+
+
 def test_budget_exhaustion_during_details_preserves_listing_and_retry_cache():
     from server.public_jobs.collector import CollectionBudgetError
     from server.scrapers.runtime import run_scraper
