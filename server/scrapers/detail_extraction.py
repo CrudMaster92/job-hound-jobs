@@ -7,7 +7,7 @@ from urllib.parse import urlsplit
 from bs4 import BeautifulSoup
 
 from .models import JobRecord, ScraperRecipe, ScraperStrategy
-from .normalize import plain_text
+from .normalize import plain_text, normalize_description
 
 
 def supports(recipe: ScraperRecipe) -> bool:
@@ -54,7 +54,7 @@ def _labelled_description(soup, job):
             continue
         content = section.select(".article__content")
         if len(content) == 1:
-            value = plain_text(str(content[0]))
+            value = normalize_description(str(content[0]))
             if value:
                 matches.append(value)
     return matches[0] if len(matches) == 1 else ""
@@ -79,7 +79,7 @@ def enrich(job: JobRecord, text: str, recipe: ScraperRecipe) -> JobRecord:
             continue
         description = posting.get("description")
         if isinstance(description, str) and plain_text(description):
-            matches.append(plain_text(description))
+            matches.append(normalize_description(description))
     # A listing or recommendation page can contain multiple same-title roles.
     # Only a uniquely identified posting is safe to enrich.
     if len(matches) == 1:

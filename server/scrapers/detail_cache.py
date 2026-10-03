@@ -13,7 +13,7 @@ def signature(job, recipe):
     listing = job.model_dump(mode="json", include={
         "source_id", "canonical_url", "title", "location", "remote_mode", "employment_type",
     })
-    value = {"listing": listing, "strategy": recipe.strategy.value, "company": recipe.company,
+    value = {"description_format": 2, "listing": listing, "strategy": recipe.strategy.value, "company": recipe.company,
              "request": recipe.request.url, "allowed_hosts": recipe.allowed_hosts,
              "ownership": recipe.source_filter.model_dump(mode="json") if recipe.source_filter else None}
     return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()

@@ -320,3 +320,7 @@ def test_collector_preserves_withheld_listing_retry_state():
                             limiter=HostLimiter(), deadline=time.monotonic() + 10, runner=runner)
     assert not value["jobs"] and value["source"]["status"] == "partial"
     assert value["detail_cache"]["withheld"]["failures"] == 1
+
+
+def test_public_feed_preserves_description_paragraphs():
+    assert job(description="<p>First <b>paragraph</b>.</p><p>Second paragraph.</p>")["description"] == "First paragraph.\n\nSecond paragraph."

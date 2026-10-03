@@ -5,6 +5,7 @@ import httpx
 from server.scrapers.detail_extraction import enrich
 from server.scrapers.models import JobRecord, ScraperRecipe
 from server.scrapers.runtime import run_scraper
+from server.scrapers.normalize import normalize_description, make_job
 
 
 def recipe():
@@ -23,7 +24,7 @@ def job():
 
 
 def html(*postings):
-    return '<script type="application/ld+json">' + json.dumps({"@graph": list(postings)}) + '</script>'
+    return '<script type="application/ld+json">' + json.dumps({"@graph": list(postings)}).replace("</", "<\\/") + '</script>'
 
 
 def posting(**changes):
@@ -34,6 +35,20 @@ def posting(**changes):
 def test_extracts_matching_structured_posting_not_navigation():
     result = enrich(job(), '<nav>Account login</nav>' + html(posting()), recipe())
     assert result.description == "Build reliable tools."
+
+
+def test_description_preserves_source_blocks_and_inline_text():
+    content = '<h3>About the role</h3><p>Build <strong>reliable</strong> tools.</p><p>Work with us.<br>Remote welcome.</p><ul><li>Python</li><li>SQL</li></ul><!-- private --><script>bad()</script>'
+    expected = 'About the role\n\nBuild reliable tools.\n\nWork with us.\nRemote welcome.\n\n• Python\n• SQL'
+    assert normalize_description(content) == expected
+    assert enrich(job(), html(posting(description=content)), recipe()).description == expected
+    normalized = make_job(company='Example', source='json_ld', source_id='one', title='Engineer', location='Remote', url='https://example.com/jobs/one', base_url='https://example.com', description=content)
+    assert normalized.description == expected
+
+
+def test_plain_and_entity_encoded_descriptions_retain_paragraphs():
+    assert normalize_description('First paragraph.\r\n\r\nSecond paragraph.\n• One\n• Two') == 'First paragraph.\n\nSecond paragraph.\n• One\n• Two'
+    assert normalize_description('&lt;p&gt;First &amp;amp; second.&lt;/p&gt;&lt;p&gt;Next.&lt;/p&gt;') == 'First & second.\n\nNext.'
 
 
 def test_rejects_other_roles_and_ambiguous_same_title():

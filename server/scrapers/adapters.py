@@ -9,13 +9,13 @@ from urllib.parse import quote, urljoin
 from bs4 import BeautifulSoup
 
 from .models import JobRecord, ScraperRecipe
-from .normalize import first, make_job, plain_text
+from .normalize import first, make_job, plain_text, normalize_description
 
 
 def _smartrecruiters_description(raw: dict[str, Any]) -> str:
     sections = raw.get("jobAd", {}).get("sections", {})
-    return " ".join(
-        plain_text(first(sections, key + ".text"))
+    return "\n\n".join(
+        normalize_description(first(sections, key + ".text"))
         for key in ("jobDescription", "qualifications", "additionalInformation")
     ).strip()
 
@@ -69,9 +69,9 @@ def lever(data: list[dict[str, Any]], recipe: ScraperRecipe) -> list[JobRecord]:
     for raw in data:
         categories = raw.get("categories") or {}
         lists = raw.get("lists") or []
-        extra = " ".join(plain_text(item.get("content")) for item in lists if isinstance(item, dict))
+        extra = "\n\n".join(normalize_description(item.get("content")) for item in lists if isinstance(item, dict))
         salary = raw.get("salaryRange") or {}
-        jobs.append(make_job(company=recipe.company, source="lever", source_id=raw.get("id"), title=raw.get("text"), location=categories.get("location"), url=raw.get("hostedUrl") or raw.get("applyUrl"), base_url=recipe.careers_url, description=f"{raw.get('descriptionPlain') or raw.get('description') or ''} {extra}", employment_type=categories.get("commitment"), salary_min=salary.get("min"), salary_max=salary.get("max"), currency=salary.get("currency"), salary_period=salary.get("interval"), remote_mode=raw.get("workplaceType")))
+        jobs.append(make_job(company=recipe.company, source="lever", source_id=raw.get("id"), title=raw.get("text"), location=categories.get("location"), url=raw.get("hostedUrl") or raw.get("applyUrl"), base_url=recipe.careers_url, description=f"{raw.get('descriptionPlain') or raw.get('description') or ''}\n\n{extra}", employment_type=categories.get("commitment"), salary_min=salary.get("min"), salary_max=salary.get("max"), currency=salary.get("currency"), salary_period=salary.get("interval"), remote_mode=raw.get("workplaceType")))
     return jobs
 
 
@@ -215,7 +215,7 @@ def generic_html(html: str, recipe: ScraperRecipe, *, source: str = "generic_htm
             title=title_node.get_text(" ", strip=True),
             location=location_node.get_text(" ", strip=True) if location_node else "Unspecified",
             url=urljoin(recipe.careers_url, link), base_url=recipe.careers_url,
-            description=description_node.get_text(" ", strip=True) if description_node else "",
+            description=str(description_node) if description_node else "",
             employment_type=node_value(employment_node),
             posted_date=node_value(posted_node, attribute="datetime"),
             remote_mode=node_value(selected(item, "remote_mode")),

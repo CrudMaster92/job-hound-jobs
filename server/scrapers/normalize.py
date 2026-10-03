@@ -8,7 +8,7 @@ from html import unescape
 from typing import Any
 from urllib.parse import urljoin
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Comment
 
 from .models import JobRecord, RemoteMode
 
@@ -36,6 +36,38 @@ def plain_text(value: Any) -> str:
         return ""
     text = BeautifulSoup(str(value), "html.parser").get_text(" ", strip=True)
     return re.sub(r"\s+", " ", unescape(text)).strip()
+
+
+def normalize_description(value: Any) -> str:
+    """Retain source paragraph/list boundaries without retaining executable HTML."""
+    if value is None:
+        return ""
+    raw = str(value).replace("\r\n", "\n").replace("\r", "\n")
+    if re.search(r"&lt;/?(?:p|div|br|ul|li|h[1-6])\b", raw, re.I):
+        raw = unescape(raw)
+    if re.search(r"</?[a-z][^>]*>", raw, re.I):
+        soup = BeautifulSoup(raw, "html.parser")
+        for node in soup(["script", "style", "iframe", "object", "template"]):
+            node.decompose()
+        # HTML source indentation is whitespace, not a paragraph boundary.
+        for node in list(soup.find_all(string=True)):
+            if isinstance(node, Comment):
+                node.extract()
+                continue
+            node.replace_with(re.sub(r"\s+", " ", str(node)))
+        for node in soup.find_all("br"):
+            node.replace_with("\n")
+        for node in soup.find_all(["p", "div", "section", "article", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol"]):
+            node.insert_before("\n\n")
+            node.insert_after("\n\n")
+        for node in soup.find_all("li"):
+            node.insert_before("\n• ")
+        raw = soup.get_text()
+    else:
+        raw = unescape(raw)
+    raw = re.sub(r"[^\S\n]+", " ", raw)
+    raw = re.sub(r" *\n *", "\n", raw)
+    return re.sub(r"\n{3,}", "\n\n", raw).strip()
 
 
 def parse_date(value: Any) -> date | None:
@@ -221,7 +253,7 @@ def make_job(
 ) -> JobRecord:
     title_text = plain_text(title)
     location_text = plain_text(location) or "Unspecified"
-    description_text = plain_text(description)
+    description_text = normalize_description(description)
     resolved_url = urljoin(base_url, str(url or ""))
     identity = str(source_id or "").strip() or JobRecord.stable_id(company, title_text, location_text, resolved_url)
     try:

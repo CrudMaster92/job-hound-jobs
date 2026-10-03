@@ -12,6 +12,7 @@ import httpx
 from bs4 import BeautifulSoup
 
 from ..scrapers.models import ScraperRecipe
+from ..scrapers.normalize import normalize_description
 from ..scrapers.http import ScraperNetworkError
 from ..scrapers.runtime import run_scraper
 from .schema import PublicJob, job_id, timestamp
@@ -109,7 +110,7 @@ def normalize_job(record, monitor: dict, now: datetime) -> dict:
         work_mode=value["remote_mode"], employment_type=value["employment_type"],
         salary_text=salary_text, salary_min=salary_min, salary_max=salary_max,
         salary_currency=value["salary_currency"], salary_period=value["salary_period"],
-        description=text_only(value["description"]), source_url=value["canonical_url"],
+        description=normalize_description(value["description"])[:100_000], source_url=value["canonical_url"],
         source_job_id=value["source_id"], posted_at=value["posted_date"],
         first_seen_at=timestamp(now), last_seen_at=timestamp(now),
     ).model_dump(mode="json")
