@@ -57,6 +57,24 @@ def test_rejects_other_roles_and_ambiguous_same_title():
         assert not enrich(job(), content, recipe()).description
 
 
+def test_localized_structured_url_requires_page_identity_and_exact_posting():
+    canonical = '<link rel="canonical" href="https://example.com/jobs/one">'
+    content = html(posting(url='https://example.com/en/jobs/one', description='<p>First paragraph.</p><p>Second paragraph.</p>'))
+    assert enrich(job(), canonical + content, recipe()).description == 'First paragraph.\n\nSecond paragraph.'
+    assert not enrich(job(), content, recipe()).description
+    for url in ['https://other.example/en/jobs/one', 'https://example.com/en/jobs/two',
+                'https://example.com/en/jobs/one?role=two', 'https://example.com/account/jobs/one']:
+        assert not enrich(job(), canonical + html(posting(url=url)), recipe()).description
+    assert not enrich(job(), canonical + canonical + content, recipe()).description
+    assert not enrich(job(), canonical.replace('/jobs/one', '/jobs/two') + content, recipe()).description
+
+
+def test_localized_same_title_recommendations_remain_ambiguous():
+    canonical = '<link rel="canonical" href="https://example.com/jobs/one">'
+    content = html(posting(url='https://example.com/en/jobs/one'), posting(url='https://example.com/fr/jobs/one'))
+    assert not enrich(job(), canonical + content, recipe()).description
+
+
 def test_generic_details_use_bounded_runner_cache_and_host_allowlist():
     seen = []
     def handler(request):

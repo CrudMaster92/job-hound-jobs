@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 from urllib.parse import urlsplit
 
 from bs4 import BeautifulSoup
@@ -34,6 +35,24 @@ def _postings(value):
 def _url_key(value: str):
     parts = urlsplit(value)
     return (parts.hostname, parts.path.rstrip("/"), parts.query)
+
+
+def _posting_url_matches(value: str, job: JobRecord, soup) -> bool:
+    """Accept a localized alias only when this page proves the listing identity."""
+    expected = _url_key(job.canonical_url)
+    actual = _url_key(value)
+    if actual == expected:
+        return True
+    canonicals = soup.select('link[rel="canonical"][href]')
+    if len(canonicals) != 1 or _url_key(canonicals[0]["href"]) != expected:
+        return False
+    # Only a leading language segment may differ. Host, posting path and query
+    # must still agree; unrelated same-title roles never become aliases.
+    locale = r"^/(?:en|fr|de|es|it|nl|pt|ja|ko|zh)(?:-[a-z]{2})?(?=/)"
+    def localized_key(key):
+        host, path, query = key
+        return host, re.sub(locale, "", path, count=1, flags=re.I), query
+    return localized_key(actual) == localized_key(expected)
 
 
 def _labelled_description(soup, job):
@@ -75,7 +94,7 @@ def enrich(job: JobRecord, text: str, recipe: ScraperRecipe) -> JobRecord:
         if title != plain_text(job.title).casefold():
             continue
         url = posting.get("url")
-        if url and (not isinstance(url, str) or _url_key(url) != _url_key(job.canonical_url)):
+        if url and (not isinstance(url, str) or not _posting_url_matches(url, job, soup)):
             continue
         description = posting.get("description")
         if isinstance(description, str) and plain_text(description):
