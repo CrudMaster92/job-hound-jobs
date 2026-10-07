@@ -8,12 +8,16 @@ from urllib.parse import parse_qsl, urljoin, urlsplit, urlunsplit
 
 import httpx
 
-from ..external_http import external_trust_env
+from ..external_http import external_trust_env, external_client_kwargs
 from .models import RequestConfig
 
 
 class ScraperNetworkError(RuntimeError):
     pass
+
+
+class ScraperYieldError(ScraperNetworkError):
+    """A resumable work slice ended before its next request completed."""
 
 
 def _validate_target(url: str, allowed_hosts: list[str], *, resolve_dns: bool = True) -> None:
@@ -44,10 +48,11 @@ def bounded_request(
     *,
     params: dict | None = None,
     json_body: dict | None = None,
+    form_body: dict | None = None,
     max_redirects: int = 3,
 ) -> httpx.Response:
     owned = client is None
-    active = client or httpx.Client(follow_redirects=False, trust_env=external_trust_env())
+    active = client or httpx.Client(follow_redirects=False, **external_client_kwargs())
     url = config.url
     configured_params = dict(config.params)
     if params is not None:
@@ -71,7 +76,8 @@ def bounded_request(
                 request_url,
                 headers={"User-Agent": "JobHound/1.0", "Accept": "application/json,text/html;q=0.9", **config.headers},
                 params=request_params,
-                json=json_body if json_body is not None else config.json_body,
+                json=(json_body if json_body is not None else config.json_body) if form_body is None else None,
+                data=form_body,
                 timeout=config.timeout_seconds,
                 follow_redirects=False,
             )

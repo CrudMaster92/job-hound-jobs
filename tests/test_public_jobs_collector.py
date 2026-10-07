@@ -18,6 +18,10 @@ RECIPE = {"version": 1, "company": "Acme", "careers_url": "https://acme.example/
           "mapping": {"items": "jobs", "title": "title", "url": "url", "source_id": "id"}}
 
 
+def test_public_feed_preserves_description_paragraphs():
+    assert job(description='<p>First <b>paragraph</b>.</p><p>Second paragraph.</p>')['description'] == 'First paragraph.\n\nSecond paragraph.'
+
+
 def job(url="https://acme.example/jobs/1", **changes):
     values = dict(company="Acme", source_id="1", title="Engineer", location="Toronto", canonical_url=url,
                   source_url=url, source="generic_json", description="<p>A role</p><script>bad()</script>")
@@ -320,7 +324,3 @@ def test_collector_preserves_withheld_listing_retry_state():
                             limiter=HostLimiter(), deadline=time.monotonic() + 10, runner=runner)
     assert not value["jobs"] and value["source"]["status"] == "partial"
     assert value["detail_cache"]["withheld"]["failures"] == 1
-
-
-def test_public_feed_preserves_description_paragraphs():
-    assert job(description="<p>First <b>paragraph</b>.</p><p>Second paragraph.</p>")["description"] == "First paragraph.\n\nSecond paragraph."

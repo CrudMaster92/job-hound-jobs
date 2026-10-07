@@ -8,10 +8,14 @@ The scheduled build runs twice daily at 05:17 and 17:17 UTC, with a manual
 workflow trigger for maintainers. Four workers collect at most one concurrent
 request per host. Each source has a 180-second/60-request budget; the entire
 collection has a 40-minute budget. No AI, credentials or browser automation run.
-Workday/SmartRecruiters details use a persistent listing-signature cache and a
-20-new-or-changed-posting budget per source/run. Later batches advance through
-previously unenriched listings. Sources with failed details remain honest about
+Workday/SmartRecruiters details use a persistent listing-signature cache.
+Recipes with `coverage_mode: all` resume listing and description work across
+budgeted slices without a role, page or description quota. Bounded recipes retain
+their existing detail budget. Sources with failed details remain honest about
 description coverage; collection completeness describes listing coverage.
+See [all-role traversal](docs/all-role-traversal.md) for checkpointing and source
+limits. A third-party search cap or missing metadata can still prevent complete
+coverage; incomplete results never prove that unseen jobs closed.
 
 ## Reliability and lifecycle
 

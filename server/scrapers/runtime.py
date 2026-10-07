@@ -7,7 +7,7 @@ import hashlib
 import json
 import re
 import time
-from typing import Any
+from typing import Any, Callable
 
 from bs4 import BeautifulSoup
 from urllib.parse import quote, urlsplit
@@ -18,8 +18,9 @@ from pydantic import ValidationError
 from . import adapters
 from . import detail_cache as detail_state
 from . import detail_extraction
+from . import traversal
 from .progress import report_progress
-from .http import ScraperNetworkError, _validate_target, bounded_request
+from .http import ScraperNetworkError, ScraperYieldError, _validate_target, bounded_request
 from .models import JobRecord, RequestConfig, ScrapeResult, ScraperRecipe, ScraperStrategy, ValidationReport
 
 
@@ -90,6 +91,9 @@ def _paged_payloads(recipe: ScraperRecipe, client: httpx.Client | None):
         if isinstance(payload, dict):
             records = next((value for key in ("content", "jobPostings", "jobs")
                             if isinstance((value := payload.get(key)), list)), [])
+            if recipe.strategy == ScraperStrategy.GENERIC_JSON and recipe.mapping.get("items"):
+                records = adapters.first(payload, recipe.mapping["items"])
+                records = records if isinstance(records, list) else []
             count = len(records)
             total = payload.get("total", payload.get("totalCount", payload.get("totalFound", payload.get("hits"))))
         elif isinstance(payload, list):
@@ -122,7 +126,7 @@ def _detail_url(job: JobRecord, recipe: ScraperRecipe) -> str | None:
     if recipe.strategy == ScraperStrategy.WORKDAY:
         path = urlsplit(job.canonical_url).path
         base = recipe.request.url.removesuffix("/jobs")
-        return f"{base}{path}" if path else None
+        return f"{base}/job/{path.split('/job/',1)[1]}" if '/job/' in path else None
     if detail_extraction.supports(recipe):
         return job.canonical_url
     return None
@@ -131,6 +135,7 @@ def _detail_url(job: JobRecord, recipe: ScraperRecipe) -> str | None:
 def _enrich_details(
     jobs: list[JobRecord], recipe: ScraperRecipe, client: httpx.Client | None,
     detail_cache: dict | None = None,
+    on_pause: Callable[[], None] | None = None,
 ) -> tuple[list[JobRecord], int, list[str]]:
     """Enrich fairly across bounded batches; failed fetches never erase good text."""
     # Prune by the listing, before ownership filtering withholds failed or
@@ -138,14 +143,17 @@ def _enrich_details(
     if detail_cache is not None:
         listing_ids = {job.source_id for job in jobs}
         for identifier in list(detail_cache):
-            if identifier not in listing_ids:
+            if identifier != traversal.CACHE_KEY and identifier not in listing_ids and (
+                recipe.coverage_mode != "all" or detail_cache.get(traversal.CACHE_KEY, {}).get("complete")
+            ):
                 del detail_cache[identifier]
     ats_detail = _smartrecruiters_details(recipe) or recipe.strategy == ScraperStrategy.WORKDAY
     if not ats_detail and not detail_extraction.supports(recipe):
         return jobs, 0, []
     configured = recipe.metadata.get("detail_fetch_limit", DEFAULT_DETAIL_FETCH_LIMIT)
     try:
-        limit = min(MAX_DETAIL_FETCH_LIMIT, max(0, int(configured)))
+        limit = (len(jobs) if recipe.coverage_mode == "all" and configured != 0
+                 else min(MAX_DETAIL_FETCH_LIMIT, max(0, int(configured))))
     except (TypeError, ValueError):
         limit = DEFAULT_DETAIL_FETCH_LIMIT
     predicates = [item for item in (recipe.source_filter.predicates if recipe.source_filter else [])
@@ -248,6 +256,11 @@ def _enrich_details(
             cache[identifier] = {**entry, "job": fresh.model_dump(mode="json"), "job_listing_url": listing.canonical_url,
                                  "success_signature": current, "succeeded_at": now,
                                  "failures": 0, "next_attempt_at": now + detail_state.SUCCESS_TTL}
+        except ScraperYieldError:
+            if on_pause:
+                on_pause()
+            warnings.append(f"Description traversal paused; {len(selected) - position} eligible roles resume next run.")
+            break
         except (ScraperNetworkError, ValueError, ValidationError):
             failed += 1
             cache[identifier] = detail_state.failure(entry, current, now)
@@ -308,11 +321,17 @@ def _filter_listing_payload(payload: Any, recipe: ScraperRecipe) -> Any:
     if not isinstance(filtered, dict):
         return filtered
     items_path = recipe.mapping.get("items") if recipe.strategy == ScraperStrategy.GENERIC_JSON else None
-    key = items_path if items_path and "." not in items_path else next(
-        (name for name in ("content", "jobPostings", "jobs") if isinstance(filtered.get(name), list)), None
-    )
-    if key and isinstance(filtered.get(key), list):
-        filtered[key] = [item for item in filtered[key] if matches(_predicate_matches(item, rule) for rule in predicates)]
+    container = filtered
+    if items_path:
+        parts = items_path.split('.')
+        key = parts[-1]
+        for name in parts[:-1]:
+            container = (container.get(name) if isinstance(container,dict) else
+                         container[int(name)] if isinstance(container,list) and name.isdigit() and int(name) < len(container) else None)
+    else:
+        key = next((name for name in ("content", "jobPostings", "jobs") if isinstance(filtered.get(name), list)), None)
+    if isinstance(container, dict) and key and isinstance(container.get(key), list):
+        container[key] = [item for item in container[key] if matches(_predicate_matches(item, rule) for rule in predicates)]
     return filtered
 
 
@@ -340,31 +359,74 @@ def run_scraper(
         return _scheduler_payload(result, selected) if scheduler_call else result
     jobs = []
     pages = 0
+    cache = detail_cache if detail_cache is not None else {}
+    listing_complete = not bool(selected.metadata.get("partial_listing"))
+    reused_snapshot = False
+    listing_warnings = []
     try:
-        for response in _paged_payloads(selected, client):
-            pages += 1
-            payload = _filter_listing_payload(_parse_response(response, selected), selected)
-            normalized = _apply_source_filter(_adapt(payload, selected), selected)
-            jobs.extend(normalized)
-            _notify(progress, "listing", f"Read {pages} pages Â· {len(jobs)} roles found", min(90, 15 + pages * 10), pages=pages, roles_found=len(jobs))
+        if selected.coverage_mode == "all":
+            prior = cache.get(traversal.CACHE_KEY, {})
+            if prior.get('refresh_listing_next_run'):
+                cache.pop(traversal.CACHE_KEY, None)
+                prior = {}
+            reused_snapshot = bool(prior.get("complete") or prior.get('listing_finished_at'))
+            pending_metadata = any(not entry.get('resolved') for entry in prior.get('missing_postings', {}).values())
+            pending_inventory = bool(prior.get('inventory', {}).get('queue'))
+            if prior and not prior.get("queue") and not prior.get("complete") and not pending_metadata and not pending_inventory:
+                cache.pop(traversal.CACHE_KEY, None)
+            jobs, pages, listing_complete, listing_warnings = traversal.traverse(
+                selected, client, cache,
+                lambda payload: _apply_source_filter(_adapt(_filter_listing_payload(payload, selected), selected), selected),
+                lambda pages, count: _notify(progress, "listing", f"Read {pages} pages · {count} roles found",
+                                            min(90, 15 + pages), pages=pages, roles_found=count),
+            )
+        else:
+            for response in _paged_payloads(selected, client):
+                pages += 1
+                payload = _filter_listing_payload(_parse_response(response, selected), selected)
+                normalized = _apply_source_filter(_adapt(payload, selected), selected)
+                jobs.extend(normalized)
+                _notify(progress, "listing", f"Read {pages} pages Â· {len(jobs)} roles found", min(90, 15 + pages * 10), pages=pages, roles_found=len(jobs))
     except (ScraperNetworkError, ValidationError) as exc:
         raise ScraperExecutionError(str(exc)) from exc
     unique = {job.source_id: job for job in jobs}
-    warnings = []
+    warnings = list(listing_warnings)
     if len(unique) < len(jobs):
         warnings.append(f"removed {len(jobs) - len(unique)} duplicate source IDs")
+    detail_paused = False
+    def mark_detail_pause():
+        nonlocal detail_paused
+        detail_paused = True
     enriched, detail_pages, detail_warnings = _enrich_details(
-        list(unique.values()), selected, client, detail_cache,
+        list(unique.values()), selected, client, cache, on_pause=mark_detail_pause,
     )
     pages += detail_pages
     warnings.extend(detail_warnings)
     result = ScrapeResult(
         jobs=enriched, strategy=selected.strategy, pages_fetched=pages,
         warnings=warnings,
-        complete=not bool(selected.metadata.get("partial_listing")) and not any(
+        continuation_ready=selected.coverage_mode == 'all' and (detail_paused or bool(cache.get(traversal.CACHE_KEY, {}).get('paused'))),
+        complete=listing_complete and not any(
             warning.startswith("source ownership could not be verified") for warning in warnings
         ),
     )
+    if selected.coverage_mode == "all" and listing_complete and (
+        all(job.description for job in enriched) or not (
+            _smartrecruiters_details(selected) or selected.strategy == ScraperStrategy.WORKDAY
+            or detail_extraction.supports(selected)
+        )
+    ):
+        cache.pop(traversal.CACHE_KEY, None)
+    if reused_snapshot:
+        result.complete = False
+        result.warnings.append("Resuming metadata or descriptions from a prior listing snapshot; this is not a new absence check.")
+    checkpoint = cache.get(traversal.CACHE_KEY)
+    if selected.coverage_mode == 'all' and checkpoint and not checkpoint.get('queue') and not checkpoint.get('inventory', {}).get('queue') and not checkpoint.get('metadata_inventory', {}).get('queue') and not result.continuation_ready and any(
+        not entry.get('resolved') for entry in checkpoint.get('missing_postings', {}).values()
+    ):
+        # A permanently bare source entry must not freeze discovery forever.
+        # Keep the current evidence, then start a fresh listing on the next run.
+        checkpoint['refresh_listing_next_run'] = True
     _notify(progress, "complete", f"Found {len(result.jobs)} jobs", 100)
     return _scheduler_payload(result, selected) if scheduler_call else result
 
@@ -420,7 +482,9 @@ def _run_playwright(recipe: ScraperRecipe) -> ScrapeResult:
                 else:
                     route.continue_()
             page.route("**/*", confined)
-            page.goto(recipe.request.url, wait_until="domcontentloaded", timeout=int(recipe.request.timeout_seconds * 1000))
+            fragment = recipe.metadata.get("browser_fragment")
+            start_url = recipe.request.url + ("#" + quote(str(fragment), safe="=&") if fragment else "")
+            page.goto(start_url, wait_until="domcontentloaded", timeout=int(recipe.request.timeout_seconds * 1000))
             wait_selector = recipe.metadata.get("wait_selector")
             if isinstance(wait_selector, str) and wait_selector:
                 page.wait_for_selector(wait_selector, timeout=int(recipe.request.timeout_seconds * 1000))

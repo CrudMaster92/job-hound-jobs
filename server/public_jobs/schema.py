@@ -86,6 +86,7 @@ class PublicSource(Contract):
     company_id: str
     company_name: str
     revision: int
+    artifact_hash: str | None = None
     status: Literal["complete", "partial", "failed", "excluded"]
     last_attempt_at: str | None = None
     last_success_at: str | None = None
