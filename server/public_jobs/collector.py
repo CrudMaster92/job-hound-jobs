@@ -4,7 +4,8 @@ from __future__ import annotations
 import threading
 import time
 import copy
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from collections import deque
+from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
 from datetime import datetime
 from urllib.parse import urlsplit
 
@@ -13,8 +14,9 @@ from bs4 import BeautifulSoup
 
 from ..scrapers.models import ScraperRecipe
 from ..scrapers.normalize import normalize_description
-from ..scrapers.http import ScraperNetworkError
+from ..scrapers.http import ScraperNetworkError, ScraperYieldError
 from ..scrapers.runtime import run_scraper
+from ..scrapers.traversal import CACHE_KEY
 from .schema import PublicJob, job_id, timestamp
 
 WORKERS = 4
@@ -39,11 +41,11 @@ class HostLimiter:
         with self.lock:
             guard = self.hosts.setdefault(host, threading.Lock())
         if not guard.acquire(timeout=max(0, deadline - time.monotonic())):
-            raise CollectionBudgetError("Host request budget exhausted")
+            raise ScraperYieldError("Host request budget exhausted")
         pause = max(0, self.last.get(host, 0) + 0.5 - time.monotonic())
         if time.monotonic() + pause >= deadline:
             guard.release()
-            raise CollectionBudgetError("Source time budget exhausted")
+            raise ScraperYieldError("Source time budget exhausted")
         if pause:
             time.sleep(pause)
         return guard
@@ -63,7 +65,7 @@ class PublicClient(httpx.Client):
         self.requests_used += 1
         remaining = self.deadline - time.monotonic()
         if self.requests_used > MAX_REQUESTS or remaining <= 0:
-            raise CollectionBudgetError("Source request/time budget exhausted")
+            raise ScraperYieldError("Source request/time budget exhausted")
         if urlsplit(str(url)).scheme != "https":
             raise CollectionBudgetError("Public collection requires HTTPS")
         host = urlsplit(str(url)).hostname or ""
@@ -76,7 +78,9 @@ class PublicClient(httpx.Client):
                 chunks, size = [], 0
                 for chunk in response.iter_bytes():
                     size += len(chunk)
-                    if size > MAX_BODY_BYTES or time.monotonic() > self.deadline:
+                    if time.monotonic() > self.deadline:
+                        raise ScraperYieldError("Source time budget exhausted during response")
+                    if size > MAX_BODY_BYTES:
                         raise CollectionBudgetError("Source response exceeds collection budget")
                     chunks.append(chunk)
                 headers = dict(response.headers)
@@ -119,12 +123,15 @@ def normalize_job(record, monitor: dict, now: datetime) -> dict:
 def collect_monitor(monitor: dict, recipe: ScraperRecipe, *, now: datetime, limiter: HostLimiter,
                     deadline: float, runner=run_scraper, detail_cache: dict | None = None) -> dict:
     source = {key: monitor[key] for key in ("id", "company_id", "company_name", "revision")}
+    if monitor.get("artifact_hash"):
+        source["artifact_hash"] = monitor["artifact_hash"]
     source.update(status="failed", complete=False, job_count=0, warnings=[])
     try:
         if time.monotonic() >= deadline:
             raise CollectionBudgetError("Build time budget exhausted")
         bounded = recipe.model_copy(deep=True)
-        bounded.metadata["detail_fetch_limit"] = DETAIL_LIMIT
+        if bounded.coverage_mode != "all":
+            bounded.metadata["detail_fetch_limit"] = DETAIL_LIMIT
         cache = copy.deepcopy(detail_cache or {})
         with PublicClient(limiter, min(deadline, time.monotonic() + SOURCE_SECONDS)) as client:
             result = runner(bounded, client=client, detail_cache=cache)
@@ -134,10 +141,15 @@ def collect_monitor(monitor: dict, recipe: ScraperRecipe, *, now: datetime, limi
         source.update(status="complete" if result.complete else "partial", complete=result.complete,
                       job_count=len(jobs), warnings=[str(warning)[:500] for warning in result.warnings[:10]])
         if not result.complete:
-            source["warnings"].insert(0, "Bounded source: this listing is incomplete; unseen roles are not confirmed closed.")
+            source["warnings"].insert(0, "Listing is incomplete; unseen roles are not confirmed closed.")
         # Runtime prunes against the original listing before ownership filtering.
         # Retry/proof state for withheld rows must survive without exporting jobs.
-        return {"source": source, "jobs": jobs, "detail_cache": cache}
+        result_payload = {"source": source, "jobs": jobs, "detail_cache": cache,
+                          "continuation_ready": result.continuation_ready}
+        if bounded.coverage_mode == "all":
+            result_payload["observed_at"] = {job["id"]: timestamp(record.scraped_at)
+                                             for job, record in zip(jobs, result.jobs)}
+        return result_payload
     except Exception as exc:
         # No response bodies, request URLs, internal paths or environment values
         # enter the public feed diagnostics.
@@ -149,14 +161,44 @@ def collect(monitors: list[tuple[dict, ScraperRecipe]], *, now: datetime, minute
             runner=run_scraper, progress=None, source_caches: dict | None = None) -> list[dict]:
     limiter = HostLimiter()
     deadline = time.monotonic() + minutes * 60
-    results = []
+    results = {}
+    caches = copy.deepcopy(source_caches or {})
     with ThreadPoolExecutor(max_workers=WORKERS) as pool:
-        futures = [pool.submit(collect_monitor, monitor, recipe, now=now, limiter=limiter,
-                               deadline=deadline, runner=runner, detail_cache=(source_caches or {}).get(monitor["id"]))
-                   for monitor, recipe in monitors]
-        for future in as_completed(futures):
-            result = future.result()
-            results.append(result)
-            if progress:
-                progress(result["source"])
-    return sorted(results, key=lambda result: result["source"]["id"])
+        remaining = deque(monitors)
+        active = {}
+        while active or remaining:
+            while remaining and len(active) < WORKERS and time.monotonic() < deadline:
+                monitor, recipe = remaining.popleft()
+                future = pool.submit(collect_monitor, monitor, recipe, now=now, limiter=limiter,
+                                     deadline=deadline, runner=runner, detail_cache=caches.get(monitor["id"]))
+                active[future] = (monitor, recipe)
+            if not active:
+                break
+            finished, _ = wait(active, return_when=FIRST_COMPLETED)
+            for future in finished:
+                monitor, recipe = active.pop(future)
+                result = future.result()
+                identifier = monitor["id"]
+                previous = results.get(identifier)
+                if result["source"]["status"] == "failed" and previous is not None:
+                    # An unsuccessful continuation must not discard the pages
+                    # or checkpoint already obtained in this same build.
+                    retained = copy.deepcopy(previous)
+                    retained["source"].update(status="partial", complete=False)
+                    retained["source"]["warnings"].extend(result["source"]["warnings"])
+                    results[identifier] = retained
+                    if progress:
+                        progress(retained["source"])
+                    continue
+                results[identifier] = result
+                updated_cache = result.get("detail_cache")
+                if updated_cache is not None:
+                    advanced = updated_cache != caches.get(identifier, {})
+                    caches[identifier] = updated_cache
+                    if (recipe.coverage_mode == "all" and CACHE_KEY in updated_cache
+                            and result.get('continuation_ready') and advanced and time.monotonic() < deadline):
+                        # Resume behind other sources, within the build's budget.
+                        remaining.append((monitor, recipe))
+                if progress:
+                    progress(result["source"])
+    return [results[key] for key in sorted(results)]

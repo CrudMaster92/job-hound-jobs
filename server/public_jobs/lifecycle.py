@@ -37,11 +37,13 @@ def apply_results(state: dict, results: list[dict], *, generation: str, now: dat
             identifier = incoming["id"]
             seen.add(identifier)
             prior = jobs.get(identifier)
+            observed_at = result.get("observed_at", {}).get(identifier, moment)
+            observed_at = timestamp(min(parse_time(observed_at), parse_time(moment)))
             observations = copy.deepcopy(prior.get("observations", {})) if prior else {}
-            observations[monitor_id] = {"last_seen_at": moment, "miss_count": 0}
+            observations[monitor_id] = {"last_seen_at": observed_at, "miss_count": 0}
             record = dict(incoming)
-            record["first_seen_at"] = prior["job"]["first_seen_at"] if prior else moment
-            record["last_seen_at"] = moment
+            record["first_seen_at"] = prior["job"]["first_seen_at"] if prior else observed_at
+            record["last_seen_at"] = max(item["last_seen_at"] for item in observations.values())
             record["status"] = "active"
             # Preserve richer details if this cycle's bounded enrichment misses.
             if prior and not record.get("description"):

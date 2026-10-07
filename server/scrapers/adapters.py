@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from typing import Any, Iterable
-from urllib.parse import quote, urljoin
+from urllib.parse import quote, urljoin, urlsplit
 
 from bs4 import BeautifulSoup
 
@@ -106,6 +106,22 @@ def enrich_smartrecruiters(job: JobRecord, raw: dict[str, Any], recipe: ScraperR
     )
 
 
+def workday_public_url(path: str, recipe: ScraperRecipe) -> str:
+    """CXS /job paths are relative to the careers board, not the host root."""
+    if not path.startswith('/job/'):
+        return path
+    endpoint = urlsplit(recipe.request.url)
+    parts = endpoint.path.split('/')
+    if len(parts) < 6 or parts[1:3] != ['wday','cxs']:
+        return path
+    site = parts[4]
+    careers = urlsplit(recipe.careers_url)
+    prefix = '/' + site
+    if careers.hostname == endpoint.hostname and site in careers.path.split('/'):
+        prefix = careers.path.split('/' + site,1)[0] + '/' + site
+    return f'{endpoint.scheme}://{endpoint.netloc}{prefix}{path}'
+
+
 def workday(data: dict[str, Any], recipe: ScraperRecipe) -> list[JobRecord]:
     jobs = []
     for raw in data.get("jobPostings", []):
@@ -113,7 +129,7 @@ def workday(data: dict[str, Any], recipe: ScraperRecipe) -> list[JobRecord]:
         info = raw.get("jobPostingInfo") or raw
         if not (info.get("title") or raw.get("title")) or not path:
             continue
-        jobs.append(make_job(company=recipe.company, source="workday", source_id=first(info, "jobReqId", "jobPostingId") or raw.get("bulletFields", [None])[0] or path, title=info.get("title") or raw.get("title"), location=info.get("location") or raw.get("locationsText") or raw.get("location"), url=info.get("externalUrl") or path, base_url=recipe.careers_url, description=info.get("jobDescription") or raw.get("description"), posted_date=info.get("startDate") or raw.get("postedOn"), employment_type=info.get("timeType") or raw.get("timeType")))
+        jobs.append(make_job(company=recipe.company, source="workday", source_id=first(info, "jobReqId", "jobPostingId") or raw.get("bulletFields", [None])[0] or path, title=info.get("title") or raw.get("title"), location=info.get("location") or raw.get("locationsText") or raw.get("location"), url=info.get("externalUrl") or workday_public_url(path,recipe), base_url=recipe.careers_url, description=info.get("jobDescription") or raw.get("description"), posted_date=info.get("startDate") or raw.get("postedOn"), employment_type=info.get("timeType") or raw.get("timeType")))
     return jobs
 
 
@@ -240,5 +256,11 @@ def generic_json(data: Any, recipe: ScraperRecipe) -> list[JobRecord]:
         if not isinstance(raw, dict):
             continue
         get = lambda field: at_path(raw, recipe.mapping.get(field, field))
-        jobs.append(make_job(company=recipe.company, source="generic_json", source_id=get("source_id"), title=get("title"), location=get("location"), url=get("url"), base_url=recipe.careers_url, description=get("description"), posted_date=get("posted_date"), employment_type=get("employment_type"), salary_min=get("salary_min"), salary_max=get("salary_max"), currency=get("salary_currency"), salary_period=get("salary_period"), remote_mode=get("remote_mode")))
+        url = get("url")
+        prefix = recipe.metadata.get("posting_url_prefix")
+        if isinstance(prefix, str) and prefix and url:
+            # A public listing may return a slug rather than a posting URL.
+            # Encode it as one path component, including any query/fragment.
+            url = prefix.rstrip("/") + "/" + quote(str(url), safe="")
+        jobs.append(make_job(company=recipe.company, source="generic_json", source_id=get("source_id"), title=get("title"), location=get("location"), url=url, base_url=recipe.careers_url, description=get("description"), posted_date=get("posted_date"), employment_type=get("employment_type"), salary_min=get("salary_min"), salary_max=get("salary_max"), currency=get("salary_currency"), salary_period=get("salary_period"), remote_mode=get("remote_mode")))
     return jobs

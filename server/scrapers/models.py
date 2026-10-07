@@ -131,7 +131,7 @@ class PaginationConfig(StrictModel):
     parameter: str | None = None
     page_size_parameter: str | None = None
     page_size: int = Field(default=100, ge=1, le=500)
-    max_pages: int = Field(default=10, ge=1, le=100)
+    max_pages: int | None = Field(default=10, ge=1, le=100)
     next_path: str | None = None
 
 
@@ -190,6 +190,7 @@ class SourceFilter(StrictModel):
 
 class ScraperRecipe(StrictModel):
     version: Literal[1] = 1
+    coverage_mode: Literal["bounded", "all"] = "bounded"
     company: str = Field(min_length=1, max_length=300)
     careers_url: str
     strategy: ScraperStrategy
@@ -241,9 +242,23 @@ class ScraperRecipe(StrictModel):
 
     @model_validator(mode="after")
     def request_host_is_allowed(self) -> "ScraperRecipe":
+        if self.coverage_mode == "bounded" and self.pagination.max_pages is None:
+            raise ValueError("null max_pages requires all-role coverage")
+        if self.coverage_mode == "all" and (
+            self.strategy == ScraperStrategy.PLAYWRIGHT or self.pagination.kind == "next_link"
+        ):
+            raise ValueError("all-role coverage requires deterministic none, offset or page pagination")
         host = (urlsplit(self.request.url).hostname or "").lower()
         if host not in self.allowed_hosts:
             raise ValueError("request URL host must be explicitly allowed")
+        prefix = self.metadata.get("posting_url_prefix")
+        if prefix is not None:
+            if not isinstance(prefix, str):
+                raise ValueError("posting_url_prefix must be a public HTTPS URL")
+            parsed = urlsplit(prefix)
+            if (parsed.scheme != "https" or parsed.hostname not in self.allowed_hosts
+                    or parsed.username or parsed.password or parsed.query or parsed.fragment):
+                raise ValueError("posting_url_prefix must be HTTPS on an explicitly allowed host without credentials, query or fragment")
         return self
 
 
@@ -259,6 +274,7 @@ class ScrapeResult(StrictModel):
     pages_fetched: int = Field(default=0, ge=0)
     warnings: list[str] = Field(default_factory=list)
     complete: bool = True
+    continuation_ready: bool = False
 
 
 class ValidationReport(StrictModel):
