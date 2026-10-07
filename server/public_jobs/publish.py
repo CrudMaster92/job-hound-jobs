@@ -11,7 +11,7 @@ from .schema import FeedManifest, PublicJob, digest, json_bytes, timestamp
 
 PAGE_SIZE = 250
 DETAIL_PAGE_SIZE = 100
-MAX_PUBLISHED_BYTES = 800_000_000
+MAX_PUBLISHED_BYTES = 950_000_000
 RETAINED_GENERATIONS = 2
 MAX_SHARD_BYTES = 7_000_000
 MAX_INDEX_BYTES = 200_000_000
@@ -114,7 +114,7 @@ def validate_publication(api: Path, manifest: dict) -> None:
                           and (not path.is_relative_to(snapshots)
                                or snapshots / path.relative_to(snapshots).parts[0] in retained))
     if published_bytes > MAX_PUBLISHED_BYTES:
-        raise ValueError("Publication exceeds its 800 MB safety budget")
+        raise ValueError("Publication exceeds its 950 MB safety budget")
 
 
 def publish(state: dict, lock: dict, output: Path, *, generation: str, now) -> dict:
@@ -161,13 +161,18 @@ def publish(state: dict, lock: dict, output: Path, *, generation: str, now) -> d
                          and path != api / "manifest.json"
                          and (not path.is_relative_to(snapshots)
                               or snapshots / path.relative_to(snapshots).parts[0] in retained))
-    index_budget = min(MAX_INDEX_BYTES, MAX_PUBLISHED_BYTES - existing_bytes - manifest_reserve)
+    detail_bytes = sum((api / ref["path"]).stat().st_size for ref in detail_refs)
+    # Share capacity across retained snapshots instead of letting today's
+    # optional snippets consume the space tomorrow's required metadata needs.
+    snapshot_budget = (MAX_PUBLISHED_BYTES - manifest_reserve) // RETAINED_GENERATIONS
+    index_budget = min(MAX_INDEX_BYTES, MAX_PUBLISHED_BYTES - existing_bytes - manifest_reserve,
+                       snapshot_budget - detail_bytes - manifest_reserve // 2)
     snippet_chars, index_bytes = _fit_search_text(search_rows, generation, byte_budget=index_budget)
     report = {"generation": generation, "stage": "index_built", "jobs": len(jobs),
               "jobs_with_descriptions": sum(bool(job["description"].strip()) for job in jobs),
               "search_index_bytes": index_bytes, "search_index_budget_bytes": index_budget,
               "search_text_max_chars": snippet_chars,
-              "detail_bytes": sum((api / ref["path"]).stat().st_size for ref in detail_refs)}
+              "detail_bytes": detail_bytes, "snapshot_budget_bytes": snapshot_budget}
     _write(output / "build-report.json", report)
     print(json.dumps({"publication": report}), flush=True)
     search_refs = []

@@ -34,7 +34,9 @@ JSON budget and remaining hosting capacity after retaining full details and the
 prior immutable snapshot. All jobs, metadata and detail references
 remain present; full descriptions are retained unchanged in the detail pages.
 Each page is at most seven MB, aggregate search is at most 200 MB, and the
-retained publication has an 800 MB safety ceiling. If required metadata alone
+retained publication has a 950 MB safety ceiling, below GitHub Pages' 1 GB limit.
+Each new snapshot receives a share of that capacity so optional snippets cannot
+crowd out the next build's required metadata. If required metadata alone
 cannot fit, publication fails explicitly and preserves the previous generation.
 The workflow summary and three-day diagnostic artifact report description
 coverage, index bytes, chosen snippet length and publication failure details. Two generations remain so

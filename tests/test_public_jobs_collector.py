@@ -295,6 +295,29 @@ def test_publication_fits_snippets_to_shared_snapshot_budget_without_losing_deta
     publisher.validate_publication(api, second)
 
 
+def test_repeated_publications_reserve_space_for_next_snapshot(tmp_path, monkeypatch):
+    from server.public_jobs import publish as publisher
+    monkeypatch.setattr(publisher, "MAX_PUBLISHED_BYTES", 42_000)
+    record = job(description="Full description. " * 1000)
+    state = merge(empty_state(), [clean_result(result([record]))], 1)
+    lock = {"catalog_commit": "a" * 40, "collections": []}
+    previous = None
+    for number in range(4):
+        manifest = publisher.publish(state, lock, tmp_path, generation=f"capacity-{number}", now=NOW)
+        api = tmp_path / "api/v1"
+        snapshot = api / "snapshots" / manifest["generation"]
+        assert sum(p.stat().st_size for p in snapshot.iterdir()) <= 21_000
+        if previous:
+            path, contents = previous
+            assert {p.name: p.read_bytes() for p in path.iterdir()} == contents
+        details = json.loads((api / manifest["detail_pages"][0]["path"]).read_bytes())["jobs"]
+        assert details[0]["description"] == record["description"]
+        assert manifest["total_jobs"] == 1
+        publisher.retain_generations(tmp_path)
+        publisher.validate_publication(api, manifest)
+        previous = snapshot, {p.name: p.read_bytes() for p in snapshot.iterdir()}
+
+
 def test_budget_exhaustion_during_details_preserves_listing_and_retry_cache():
     from server.public_jobs.collector import CollectionBudgetError
     from server.scrapers.runtime import run_scraper
