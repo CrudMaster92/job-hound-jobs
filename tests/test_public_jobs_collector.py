@@ -112,7 +112,8 @@ def test_publisher_validates_before_pointer_switch_and_has_hashed_lazy_details(t
     assert "description" not in search["jobs"][0]
     assert "salary_min" not in search["jobs"][0]
     details = json.loads((api / manifest["detail_pages"][0]["path"]).read_text())
-    assert details["jobs"][0]["salary_min"] is None
+    from server.public_jobs.schema import PublicJob
+    assert PublicJob.model_validate(details["jobs"][0]).salary_min is None
     assert search["jobs"][0]["detail_ref"]["sha256"] == manifest["detail_pages"][0]["sha256"]
     before = (api / "manifest.json").read_bytes()
     state["jobs"][job()["id"]]["job"]["private_data"] = "must never leak"
@@ -316,6 +317,19 @@ def test_repeated_publications_reserve_space_for_next_snapshot(tmp_path, monkeyp
         publisher.retain_generations(tmp_path)
         publisher.validate_publication(api, manifest)
         previous = snapshot, {p.name: p.read_bytes() for p in snapshot.iterdir()}
+
+
+def test_compact_details_round_trip_every_public_field(tmp_path):
+    from server.public_jobs.schema import PublicJob
+    record = job(description="Full description. " * 1000, employment_type="Full-time", salary_min=0)
+    state = merge(empty_state(), [clean_result(result([record]))], 1)
+    lock = {"catalog_commit": "a" * 40, "collections": []}
+    manifest = publish(state, lock, tmp_path, generation="compact", now=NOW)
+    data = json.loads((tmp_path / "api/v1" / manifest["detail_pages"][0]["path"]).read_bytes())["jobs"][0]
+    assert not any(value is None for value in data.values())
+    assert data["salary_min"] == 0
+    assert PublicJob.model_validate(data).model_dump(mode="json") == state["jobs"][record["id"]]["job"]
+    validate_publication(tmp_path / "api/v1", manifest)
 
 
 def test_budget_exhaustion_during_details_preserves_listing_and_retry_cache():

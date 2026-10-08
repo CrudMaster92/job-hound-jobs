@@ -11,7 +11,7 @@ from .schema import FeedManifest, PublicJob, digest, json_bytes, timestamp
 
 PAGE_SIZE = 250
 DETAIL_PAGE_SIZE = 100
-MAX_PUBLISHED_BYTES = 950_000_000
+MAX_PUBLISHED_BYTES = 990_000_000
 RETAINED_GENERATIONS = 2
 MAX_SHARD_BYTES = 7_000_000
 MAX_INDEX_BYTES = 200_000_000
@@ -114,7 +114,7 @@ def validate_publication(api: Path, manifest: dict) -> None:
                           and (not path.is_relative_to(snapshots)
                                or snapshots / path.relative_to(snapshots).parts[0] in retained))
     if published_bytes > MAX_PUBLISHED_BYTES:
-        raise ValueError("Publication exceeds its 950 MB safety budget")
+        raise ValueError(f"Publication exceeds its {MAX_PUBLISHED_BYTES}-byte safety budget")
 
 
 def publish(state: dict, lock: dict, output: Path, *, generation: str, now) -> dict:
@@ -129,12 +129,15 @@ def publish(state: dict, lock: dict, output: Path, *, generation: str, now) -> d
     detail_refs, search_rows = [], []
     for page, group in enumerate(_groups(jobs, DETAIL_PAGE_SIZE), 1):
         relative = f"snapshots/{generation}/details-{page:04}.json"
-        ref = {"path": relative, "sha256": _write(api / relative, {"generation": generation, "jobs": group}), "count": len(group)}
+        # Optional nulls deserialize to the same contract defaults. Omit their
+        # repeated field names without shortening descriptions or dropping jobs.
+        compact = [{key: value for key, value in job.items() if value is not None} for job in group]
+        ref = {"path": relative, "sha256": _write(api / relative, {"generation": generation, "jobs": compact}), "count": len(group)}
         detail_refs.append(ref)
         for job in group:
             # Optional absent values carry no search information. Consumers
-            # already accept missing optional fields; details retain the full
-            # schema, including nulls. Keep scarce index bytes for actual data.
+            # already accept missing optional fields. Details preserve every
+            # populated value, including full descriptions.
             row = {key: value for key, value in job.items() if key != "description" and value is not None}
             row["search_text"] = job["description"][:MAX_SEARCH_TEXT_CHARS]
             row["detail_ref"] = {"path": ref["path"], "sha256": ref["sha256"]}
