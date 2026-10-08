@@ -7,7 +7,7 @@ from pathlib import Path
 
 from .schema import digest, json_bytes
 
-PUBLIC_MODULES = ("__init__", "schema", "lifecycle", "catalog", "collector", "publish", "__main__", "export", "admission")
+PUBLIC_MODULES = ("__init__", "schema", "lifecycle", "catalog", "collector", "publish", "__main__", "export", "admission", "coverage")
 SCRAPER_MODULES = ("__init__", "adapters", "ai_contract", "detection", "detail_cache", "detail_extraction", "facade", "http", "models", "normalize", "progress", "runtime", "traversal", "missing_postings", "workday_inventory")
 CONTRIBUTION_MODULES = ("__init__", "contracts", "github", "validation", "cli", "admission")
 SCHEMA_NAMES = ("jobhound-company-v1", "jobhound-monitor-v1", "jobhound-collection-v1", "jobhound-preset-v1")

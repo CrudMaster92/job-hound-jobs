@@ -7,7 +7,7 @@ from pathlib import Path
 root = Path(__file__).resolve().parents[1]
 report_path = root / "_site/build-report.json"
 report = json.loads(report_path.read_text(encoding="utf-8")) if report_path.exists() else {}
-counts = Counter()
+states = {}
 error = None
 log_path = root / "public-build.log"
 if log_path.exists():
@@ -15,10 +15,16 @@ if log_path.exists():
         try:
             value = json.loads(line)
             if isinstance(value, dict) and "id" in value and "status" in value:
-                counts[value["status"]] += 1
+                states[value["id"]] = value["status"]
         except ValueError:
             if line.startswith(("ValueError:", "RuntimeError:", "No sources succeeded")):
                 error = line[:1000]
+counts = Counter(states.values())
+coverage_path = root / '_site/catalog-coverage.json'
+coverage = json.loads(coverage_path.read_text('utf-8')) if coverage_path.exists() else None
+if coverage:
+    report['catalog_coverage'] = {key: len(coverage[key]) for key in ('not_pinned', 'outdated_pins', 'bounded_pagination')}
+    report['missing_collections'] = [item['id'] for item in coverage['collections'] if not item['present_in_feed']]
 report.update(collection_outcome=os.environ.get("COLLECTION_OUTCOME", "unknown"),
               source_counts=dict(counts), error=error)
 folder = root / "diagnostics"
@@ -33,6 +39,11 @@ for key in ("generation", "jobs", "jobs_with_descriptions", "search_index_bytes"
         lines.append(f"{key}: {report[key]}")
 if error:
     lines.extend(["", f"Failure: {error}", "The last published feed remains available."])
+if coverage:
+    lines.extend(['', f"Catalog coverage: {report['catalog_coverage']}", f"Missing collections: {report['missing_collections']}"])
+    (folder / 'catalog-coverage.json').write_text(json.dumps(coverage, indent=2) + '\n', encoding='utf-8')
+else:
+    lines.append('Catalog coverage comparison unavailable; absence is not zero missing sources.')
 summary = "\n\n".join(lines) + "\n"
 print(summary)
 if os.environ.get("GITHUB_STEP_SUMMARY"):

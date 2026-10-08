@@ -9,9 +9,11 @@ workflow trigger for maintainers. Four workers collect at most one concurrent
 request per host. Each source has a 180-second/60-request budget; the entire
 collection has a 40-minute budget. No AI, credentials or browser automation run.
 Workday/SmartRecruiters details use a persistent listing-signature cache.
-Recipes with `coverage_mode: all` resume listing and description work across
-budgeted slices without a role, page or description quota. Bounded recipes retain
-their existing detail budget. Sources with failed details remain honest about
+The public collector requests all roles for supported JSON page/offset recipes,
+including older catalog pins with small `max_pages` values. It resumes listing
+and description work across budgeted slices without a role or page-count quota.
+Endpoints, ownership filters, host restrictions and explicit partial-listing
+flags remain enforced. Sources with failed details remain honest about
 description coverage; collection completeness describes listing coverage.
 See [all-role traversal](docs/all-role-traversal.md) for checkpointing and source
 limits. A third-party search cap or missing metadata can still prevent complete
@@ -19,8 +21,9 @@ coverage; incomplete results never prove that unseen jobs closed.
 
 ## Reliability and lifecycle
 
-The catalog lock pins one reviewed catalog commit and exact monitor revisions
-and hashes. Verified non-browser sources are eligible, including explicitly
+The catalog lock pins exact reviewed monitor commits, revisions and hashes.
+Version two retains individually reviewed historical pins when newer catalog
+collections are added. Verified non-browser sources are eligible, including explicitly
 partial sources. Excluded and failing sources remain visible in source health.
 New revisions require an explicit lock update and deployment.
 
@@ -33,7 +36,10 @@ unseen; a consumer can retain its own favourite snapshot independently.
 
 Builds verify all schemas, hashes, generations and byte limits before replacing
 the current manifest. Search pages omit descriptions; details are lazy hashed
-pages. Search snippets adapt from at most 2,000 characters to the actual UTF-8
+pages. The workflow publishes losslessly compressed `.json.gz` detail pages;
+readers verify the stored SHA-256 before bounded expansion. Install the updated
+app/workspace reader before enabling this format in a deployment.
+Search snippets adapt from at most 2,000 characters to the actual UTF-8
 JSON budget and remaining hosting capacity after retaining full details and the
 prior immutable snapshot. All jobs, metadata and detail references
 remain present; full descriptions are retained unchanged in the detail pages.
@@ -43,7 +49,11 @@ Each new snapshot receives a share of that capacity so optional snippets cannot
 crowd out the next build's required metadata. If required metadata alone
 cannot fit, publication fails explicitly and preserves the previous generation.
 The workflow summary and three-day diagnostic artifact report description
-coverage, index bytes, chosen snippet length and publication failure details. Two generations remain so
+coverage, index bytes, chosen snippet length and publication failure details.
+`catalog-coverage.json` compares the current catalog with the lock, showing
+missing sources, outdated pins and collection coverage without admitting them.
+Comparison failures are explicit diagnostics, rather than a zero missing count.
+Two generations remain so
 in-flight readers can finish. All-source failure preserves the published feed.
 
 The dedicated `feed-state` branch persists anonymous state and the last two
@@ -75,7 +85,7 @@ python -m server.public_jobs.export --destination . --check
 python -m pytest tests -q
 git clone https://github.com/CrudMaster92/job-hound-presets.git .catalog
 # Check out catalog-lock.json's catalog_commit before building.
-python -m server.public_jobs build --catalog .catalog --lock catalog-lock.json --state .feed-state/state.json --output _site
+python -m server.public_jobs build --compress-details --catalog .catalog --lock catalog-lock.json --state .feed-state/state.json --output _site
 ```
 
 To review an intentional catalog update, check out the desired catalog commit,

@@ -20,6 +20,12 @@ def advance_lock(root: Path, previous: dict, approved: dict, pending=None) -> di
     # Current author status is immaterial. Admission is an exact data hash and
     # trusted live receipt for this runtime, plus the maintainer's actual merge.
     candidates = {item["id"]: item for item in [*current["monitors"], *current["excluded"]]}
+    for monitor_id, pin in pins.items():
+        candidate = candidates.get(monitor_id)
+        if candidate and candidate['company_id'] == pin['company_id']:
+            # Collection membership is current public metadata. Refresh it
+            # without replacing an individually reviewed recipe revision.
+            pin['collection_ids'] = candidate['collection_ids']
     for monitor_id, authorization in approved.items():
         if monitor_id not in candidates:
             continue
@@ -30,7 +36,8 @@ def advance_lock(root: Path, previous: dict, approved: dict, pending=None) -> di
             raise ValueError("Approved source changed during admission")
         pins[monitor_id] = {key: value for key, value in entry.items() if key != "reason"}
         pins[monitor_id].update(catalog_commit=commit, validation=authorization["receipt"], artifact_hash=content_hash(document))
-    excluded = [item for item in current["excluded"] if item["id"] not in pins]
+    excluded = [{**item, 'reason': item.get('reason') or 'Awaiting trusted public admission for this revision'}
+                for item in candidates.values() if item['id'] not in pins]
     return {"version": 2, "repository": previous["repository"], "catalog_commit": commit,
             "collections": current["collections"], "monitors": sorted(pins.values(), key=lambda x: x["id"]),
             "excluded": excluded, "pending": pending or {}}
