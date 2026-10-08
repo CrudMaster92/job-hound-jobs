@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any, Iterable
 from urllib.parse import quote, urljoin, urlsplit
 
@@ -219,6 +220,10 @@ def generic_html(html: str, recipe: ScraperRecipe, *, source: str = "generic_htm
         salary_node = selected(item, "salary")
         source_id = item.get("data-job-id") or item.get("id")
         link = link_node.get("href") if link_node else None
+        if link and recipe.metadata.get("strip_link_session_id") is True:
+            parts = urlsplit(link)
+            path = re.sub(r";jsessionid=[^/;?]*", "", parts.path, flags=re.I)
+            link = parts._replace(path=path).geturl()
         template = recipe.metadata.get("link_template")
         if not link and source_id and isinstance(template, str) and "{source_id}" in template:
             link = template.replace("{source_id}", quote(str(source_id), safe=""))

@@ -316,6 +316,17 @@ def _filter_listing_payload(payload: Any, recipe: ScraperRecipe) -> Any:
         return payload
     filtered = copy.deepcopy(payload)
     matches = all if recipe.source_filter.predicate_match == "all" else any
+    if isinstance(filtered, str):
+        selector = recipe.metadata.get("listing_employer_selector")
+        if not isinstance(selector, str) or not selector.strip() or any(rule.path != "employer" for rule in predicates):
+            raise ScraperExecutionError("HTML ownership predicates require listing_employer_selector and employer paths")
+        soup = BeautifulSoup(filtered, "html.parser")
+        for item in soup.select(recipe.selectors.get("item", ".job")):
+            employer = item.select_one(selector)
+            evidence = {"employer": employer.get_text(" ", strip=True) if employer else None}
+            if not matches(_predicate_matches(evidence, rule) for rule in predicates):
+                item.decompose()
+        return str(soup)
     if isinstance(filtered, list):
         return [item for item in filtered if matches(_predicate_matches(item, rule) for rule in predicates)]
     if not isinstance(filtered, dict):
