@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import json
+import gzip
+import io
 import os
 import re
 import shutil
@@ -70,6 +72,8 @@ def _fit_search_text(rows: list[dict], generation: str, *, byte_budget: int | No
 def _write(path: Path, value: object) -> str:
     path.parent.mkdir(parents=True, exist_ok=True)
     content = json_bytes(value)
+    if path.name.endswith(".json.gz"):
+        content = gzip.compress(content, compresslevel=6, mtime=0)
     path.write_bytes(content)
     return digest(content)
 
@@ -94,6 +98,11 @@ def validate_publication(api: Path, manifest: dict) -> None:
             index_bytes += len(content)
         if digest(content) != ref["sha256"]:
             raise ValueError("Feed artifact hash mismatch")
+        if path.name.endswith(".json.gz"):
+            with gzip.GzipFile(fileobj=io.BytesIO(content)) as stream:
+                content = stream.read(MAX_SHARD_BYTES + 1)
+            if len(content) > MAX_SHARD_BYTES:
+                raise ValueError("Expanded feed shard exceeds the seven MB byte budget")
         page = json.loads(content)
         if page["generation"] != manifest["generation"] or len(page["jobs"]) != ref["count"]:
             raise ValueError("Feed artifact generation/count mismatch")
@@ -117,7 +126,7 @@ def validate_publication(api: Path, manifest: dict) -> None:
         raise ValueError(f"Publication exceeds its {MAX_PUBLISHED_BYTES}-byte safety budget")
 
 
-def publish(state: dict, lock: dict, output: Path, *, generation: str, now) -> dict:
+def publish(state: dict, lock: dict, output: Path, *, generation: str, now, compress_details: bool = False) -> dict:
     if not re.fullmatch(r"[a-zA-Z0-9_-]{1,100}", generation):
         raise ValueError("Invalid generation identifier")
     api = output / "api" / "v1"
@@ -128,7 +137,7 @@ def publish(state: dict, lock: dict, output: Path, *, generation: str, now) -> d
     jobs = [PublicJob.model_validate(entry["job"]).model_dump(mode="json") for _, entry in sorted(state["jobs"].items())]
     detail_refs, search_rows = [], []
     for page, group in enumerate(_groups(jobs, DETAIL_PAGE_SIZE), 1):
-        relative = f"snapshots/{generation}/details-{page:04}.json"
+        relative = f"snapshots/{generation}/details-{page:04}.json" + (".gz" if compress_details else "")
         # Optional nulls deserialize to the same contract defaults. Omit their
         # repeated field names without shortening descriptions or dropping jobs.
         compact = [{key: value for key, value in job.items() if value is not None} for job in group]

@@ -28,6 +28,7 @@ def main() -> None:
     build.add_argument("--generation")
     build.add_argument("--monitor", action="append", default=[], help="Restrict a local smoke run; never use to update production state")
     build.add_argument("--minutes", type=int, default=40)
+    build.add_argument("--compress-details", action="store_true", help="Store full details as hash-checked gzip pages; requires updated feed readers")
     args = parser.parse_args()
     if args.command == "lock":
         lock = build_lock(args.catalog.resolve())
@@ -63,7 +64,7 @@ def main() -> None:
         updated["sources"][source["id"]] = {key: source[key] for key in ("id", "company_id", "company_name", "revision")}
         updated["sources"][source["id"]].update(status="excluded", complete=False, job_count=0,
                                                        last_attempt_at=None, last_success_at=None, warnings=[source["reason"]])
-    manifest = publish(updated, lock, args.output, generation=generation, now=now)
+    manifest = publish(updated, lock, args.output, generation=generation, now=now, compress_details=args.compress_details)
     args.state.parent.mkdir(parents=True, exist_ok=True)
     pending = args.state.with_suffix(".pending.json")
     pending.write_bytes(json_bytes(updated))

@@ -111,7 +111,13 @@ def test_unverified_update_retains_working_individual_pin(tmp_path):
     write(tmp_path, {path: content for path, content in files.items() if not path.startswith("contributions/")})
     first = commit(tmp_path); old = build_lock(tmp_path)
     updated = copy.deepcopy(files[monitor_path]); updated["revision"] = 2; updated["verification"]["status"] = "unverified"
-    write(tmp_path, {monitor_path: updated}); commit(tmp_path)
+    new = copy.deepcopy(files[monitor_path]); new['id'] = 'new-source'
+    write(tmp_path, {monitor_path: updated,
+                    'companies/acme/monitors/new-source.json': new,
+                    'collections/science.json': {'id': 'science', 'name': 'Science', 'companies': [{'company_id': 'acme', 'monitor_ids': ['acme']}]}})
+    commit(tmp_path)
     lock = advance_lock(tmp_path, old, {})
     assert lock["monitors"][0]["catalog_commit"] == first
     assert load_monitors(tmp_path, lock)[0][0]["revision"] == 1
+    assert 'science' in lock['monitors'][0]['collection_ids']
+    assert next(item for item in lock['excluded'] if item['id'] == 'new-source')['reason'] == 'Awaiting trusted public admission for this revision'

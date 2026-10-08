@@ -1,6 +1,7 @@
 """Public collection, lifecycle, privacy and atomic publication contracts."""
 from datetime import datetime, timedelta, timezone
 import json
+import gzip
 
 import httpx
 import pytest
@@ -12,6 +13,36 @@ from server.public_jobs.schema import job_id, json_bytes, timestamp
 from server.scrapers.models import JobRecord, ScrapeResult, ScraperRecipe
 
 NOW = datetime(2026, 9, 26, 12, tzinfo=timezone.utc)
+
+def test_compressed_publication_preserves_every_job_and_full_description(tmp_path):
+    records = [job(url=f"https://acme.example/jobs/{i}", description="Long public paragraph. " * 1000) for i in range(101)]
+    state = merge(empty_state(), [clean_result(result(records))], 1)
+    lock = {"catalog_commit": "a" * 40, "collections": [{"id": "technology", "name": "Technology"}]}
+    manifest = publish(state, lock, tmp_path, generation="compressed", now=NOW, compress_details=True)
+    api = tmp_path / "api/v1"
+    validate_publication(api, manifest)
+    details = [job for ref in manifest["detail_pages"] for job in json.loads(gzip.decompress((api / ref["path"]).read_bytes()))["jobs"]]
+    assert len(details) == manifest["total_jobs"] == 101
+    assert {r["id"] for r in details} == {r["id"] for r in records}
+    assert all(r["description"] == records[0]["description"] for r in details)
+    assert sum((api / ref["path"]).stat().st_size for ref in manifest["detail_pages"]) < len(json.dumps(details).encode()) // 10
+
+def test_public_json_listing_traverses_beyond_pinned_page_limit_without_mutating_recipe():
+    import time
+    from server.scrapers.runtime import run_scraper
+    recipe = ScraperRecipe.model_validate({**RECIPE, 'pagination': {'kind': 'offset', 'parameter': 'offset', 'page_size': 2, 'max_pages': 1}, 'metadata': {'detail_fetch_limit': 0, 'partial_listing': True}})
+    offsets = []
+    def handler(request):
+        offset = int(request.url.params.get('offset', 0)); offsets.append(offset)
+        return httpx.Response(200, json={'total': 6, 'jobs': [{'id': str(i), 'title': 'Engineer', 'url': f'https://acme.example/jobs/{i}'} for i in range(offset, min(offset+2, 6))]})
+    def runner(selected, *, client, detail_cache):
+        with httpx.Client(transport=httpx.MockTransport(handler)) as mock:
+            return run_scraper(selected, client=mock, detail_cache=detail_cache)
+    value = collect_monitor(MONITOR, recipe, now=NOW, limiter=HostLimiter(), deadline=time.monotonic()+10, runner=runner)
+    assert offsets == [0, 2, 4]
+    assert len(value['jobs']) == 6
+    assert value['source']['status'] == 'partial'
+    assert recipe.coverage_mode == 'bounded' and recipe.pagination.max_pages == 1
 MONITOR = {"id": "acme", "company_id": "acme", "company_name": "Acme", "revision": 1, "collection_ids": ["technology"]}
 RECIPE = {"version": 1, "company": "Acme", "careers_url": "https://acme.example/careers", "strategy": "generic_json",
           "allowed_hosts": ["acme.example"], "request": {"url": "https://acme.example/jobs"},
@@ -142,6 +173,26 @@ def test_catalog_requires_exact_commit_and_recipe_hash(tmp_path, monkeypatch):
     path.write_text("{}")
     with pytest.raises(ValueError, match="content"):
         catalog.load_monitors(tmp_path, lock)
+
+def test_coverage_reports_missing_collections_stale_pins_and_bounded_sources(tmp_path):
+    from server.public_jobs.coverage import catalog_coverage
+    from server.public_jobs.schema import digest
+    root = tmp_path / 'catalog'
+    path = root / 'companies/acme/monitors/acme.json'
+    path.parent.mkdir(parents=True)
+    old = {'id': 'acme', 'company_id': 'acme', 'revision': 1, 'recipe': {**RECIPE, 'pagination': {'kind': 'offset', 'max_pages': 10, 'page_size': 20}}}
+    pin = {'id': 'acme', 'revision': 1, 'sha256': digest(json_bytes(old))}
+    path.write_bytes(json_bytes({**old, 'revision': 2}))
+    extra = path.with_name('new-source.json')
+    extra.write_bytes(json_bytes({**old, 'id': 'new-source'}))
+    (root / 'collections').mkdir()
+    (root / 'collections/science.json').write_bytes(json_bytes({'id': 'science', 'companies': [{'company_id': 'acme', 'monitor_ids': ['acme', 'new-source']}]}))
+    report = catalog_coverage(root, {'monitors': [pin], 'excluded': [], 'collections': []})
+    assert report['not_pinned'] == ['new-source']
+    assert report['outdated_pins'] == [{'id': 'acme', 'pinned_revision': 1, 'catalog_revision': 2}]
+    assert report['collections'][0]['present_in_feed'] is False
+    assert report['collections'][0]['admitted'] == 1
+    assert report['bounded_pagination'][0]['max_pages'] == 10
 
 
 def test_detail_cache_advances_bounded_batches_and_only_refetches_changed_listings():

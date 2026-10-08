@@ -16,7 +16,7 @@ from ..scrapers.models import ScraperRecipe
 from ..scrapers.normalize import normalize_description
 from ..scrapers.http import ScraperNetworkError, ScraperYieldError
 from ..scrapers.runtime import run_scraper
-from ..scrapers.traversal import CACHE_KEY
+from ..scrapers.traversal import CACHE_KEY, JSON_STRATEGIES
 from .schema import PublicJob, job_id, timestamp
 
 WORKERS = 4
@@ -24,6 +24,18 @@ SOURCE_SECONDS = 180
 MAX_REQUESTS = 60
 DETAIL_LIMIT = 20
 MAX_BODY_BYTES = 20_000_000
+
+
+def public_recipe(recipe: ScraperRecipe) -> ScraperRecipe:
+    """Public discovery resumes supported pagination instead of inheriting a
+    local recipe's page-count stop. Hosts, requests and ownership filters stay
+    pinned; explicitly scoped/partial sources cannot establish global closure.
+    """
+    selected = recipe.model_copy(deep=True)
+    if selected.strategy in JSON_STRATEGIES and selected.pagination.kind in {'offset', 'page'}:
+        selected.coverage_mode = 'all'
+        selected.pagination.max_pages = None
+    return selected
 
 
 class CollectionBudgetError(ScraperNetworkError):
@@ -129,7 +141,7 @@ def collect_monitor(monitor: dict, recipe: ScraperRecipe, *, now: datetime, limi
     try:
         if time.monotonic() >= deadline:
             raise CollectionBudgetError("Build time budget exhausted")
-        bounded = recipe.model_copy(deep=True)
+        bounded = public_recipe(recipe)
         if bounded.coverage_mode != "all":
             bounded.metadata["detail_fetch_limit"] = DETAIL_LIMIT
         cache = copy.deepcopy(detail_cache or {})
@@ -138,9 +150,10 @@ def collect_monitor(monitor: dict, recipe: ScraperRecipe, *, now: datetime, limi
         # Fail the source if normalization rejects even one record: discarding it
         # and calling this a complete listing could incorrectly close a job.
         jobs = [normalize_job(job, monitor, now) for job in result.jobs]
-        source.update(status="complete" if result.complete else "partial", complete=result.complete,
+        complete = result.complete and not bool(recipe.metadata.get('partial_listing'))
+        source.update(status="complete" if complete else "partial", complete=complete,
                       job_count=len(jobs), warnings=[str(warning)[:500] for warning in result.warnings[:10]])
-        if not result.complete:
+        if not complete:
             source["warnings"].insert(0, "Listing is incomplete; unseen roles are not confirmed closed.")
         # Runtime prunes against the original listing before ownership filtering.
         # Retry/proof state for withheld rows must survive without exporting jobs.
@@ -159,6 +172,7 @@ def collect_monitor(monitor: dict, recipe: ScraperRecipe, *, now: datetime, limi
 
 def collect(monitors: list[tuple[dict, ScraperRecipe]], *, now: datetime, minutes: int = 40,
             runner=run_scraper, progress=None, source_caches: dict | None = None) -> list[dict]:
+    monitors = [(entry, public_recipe(recipe)) for entry, recipe in monitors]
     limiter = HostLimiter()
     deadline = time.monotonic() + minutes * 60
     results = {}

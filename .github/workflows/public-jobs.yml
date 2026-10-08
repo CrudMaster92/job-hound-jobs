@@ -46,17 +46,24 @@ jobs:
           pin="$(python -c "import json; print(json.load(open('catalog-lock.json'))['catalog_commit'])")"
           git init .catalog
           git -C .catalog remote add origin https://github.com/CrudMaster92/job-hound-presets.git
-          git -C .catalog fetch --depth 1 origin "$pin"
+          # Individual version-two pins also need their reviewed historical blobs.
+          git -C .catalog fetch origin "$pin"
           git -C .catalog checkout --detach FETCH_HEAD
       - name: Collect and validate static publication
         id: collect
         run: |
           python -c "from pathlib import Path; Path('_site/build-report.json').unlink(missing_ok=True)"
           set -o pipefail
-          python -m server.public_jobs build --catalog .catalog --lock catalog-lock.json \
+          python -m server.public_jobs build --compress-details --catalog .catalog --lock catalog-lock.json \
             --state .feed-state/state.json --output _site \
             --generation "$(date -u +%Y%m%dT%H%M%S)-${{ github.run_id }}-${{ github.run_attempt }}" \
             2>&1 | tee public-build.log
+      - name: Compare catalog coverage without activating new sources
+        continue-on-error: true
+        run: |
+          git clone --depth 1 https://github.com/CrudMaster92/job-hound-presets.git .coverage-catalog
+          python -m server.public_jobs.coverage --catalog .coverage-catalog --lock catalog-lock.json \
+            --output _site/catalog-coverage.json
       - name: Record collection and publication diagnostics
         if: always()
         env:
